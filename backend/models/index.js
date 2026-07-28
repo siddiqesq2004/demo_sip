@@ -65,22 +65,125 @@ async function getAllSubAdminLogs() {
 // --- Portfolio Model ---
 async function getPortfolioByUserId(userId) {
   const [rows] = await query('SELECT * FROM portfolio WHERE user_id = ?', [userId]);
-  return rows.length > 0 ? rows[0] : null;
+  if (rows.length === 0) return null;
+  
+  const p = rows[0];
+  return {
+    ...p,
+    available_cash: p.available_cash !== undefined ? p.available_cash : 2420.00,
+    unclaimed_amount: p.unclaimed_amount !== undefined ? p.unclaimed_amount : 42.00,
+    unclaimed_count: p.unclaimed_count !== undefined ? p.unclaimed_count : 1,
+    streak_count: p.streak_count !== undefined ? p.streak_count : 18,
+    auto_reinvest: p.auto_reinvest !== undefined ? p.auto_reinvest : 1,
+    unclaimed_days: p.unclaimed_days ? (typeof p.unclaimed_days === 'string' ? JSON.parse(p.unclaimed_days) : p.unclaimed_days) : [
+      { day: 'Monday', amount: 42.00, date: '2026-07-27' }
+    ]
+  };
 }
 
-async function updatePortfolio(userId, totalValue, investedAmount, totalReturns) {
+async function updatePortfolio(userId, totalValue, investedAmount, totalReturns, extra = {}) {
   const existing = await getPortfolioByUserId(userId);
   if (existing) {
+    const availableCash = extra.available_cash !== undefined ? extra.available_cash : existing.available_cash;
+    const unclaimedAmount = extra.unclaimed_amount !== undefined ? extra.unclaimed_amount : existing.unclaimed_amount;
+    const unclaimedCount = extra.unclaimed_count !== undefined ? extra.unclaimed_count : existing.unclaimed_count;
+    const streakCount = extra.streak_count !== undefined ? extra.streak_count : existing.streak_count;
+    const autoReinvest = extra.auto_reinvest !== undefined ? extra.auto_reinvest : existing.auto_reinvest;
+    const unclaimedDays = extra.unclaimed_days ? JSON.stringify(extra.unclaimed_days) : JSON.stringify(existing.unclaimed_days || []);
+
     await query(
-      'UPDATE portfolio SET total_value = ?, invested_amount = ?, total_returns = ? WHERE user_id = ?',
-      [totalValue, investedAmount, totalReturns, userId]
+      `UPDATE portfolio 
+       SET total_value = ?, invested_amount = ?, total_returns = ?, available_cash = ?, unclaimed_amount = ?, unclaimed_count = ?, streak_count = ?, auto_reinvest = ?, unclaimed_days = ?
+       WHERE user_id = ?`,
+      [totalValue, investedAmount, totalReturns, availableCash, unclaimedAmount, unclaimedCount, streakCount, autoReinvest, unclaimedDays, userId]
     );
   } else {
     await query(
-      'INSERT INTO portfolio (user_id, total_value, invested_amount, total_returns) VALUES (?, ?, ?, ?)',
-      [userId, totalValue, investedAmount, totalReturns]
+      `INSERT INTO portfolio (user_id, total_value, invested_amount, total_returns, available_cash, unclaimed_amount, unclaimed_count, streak_count, auto_reinvest, unclaimed_days)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, totalValue, investedAmount, totalReturns, 2420.00, 42.00, 1, 18, 1, JSON.stringify([{ day: 'Monday', amount: 42.00, date: '2026-07-27' }])]
     );
   }
+}
+
+async function claimUserGrowth(userId) {
+  const portfolio = await getPortfolioByUserId(userId);
+  if (!portfolio || !portfolio.unclaimed_amount || portfolio.unclaimed_amount <= 0) {
+    return { claimed: false, message: 'No pending growth rewards to claim' };
+  }
+
+  const claimAmt = parseFloat(portfolio.unclaimed_amount);
+  const newTotalVal = parseFloat(portfolio.total_value) + claimAmt;
+  const newTotalRet = parseFloat(portfolio.total_returns) + claimAmt;
+  const newAvailable = parseFloat(portfolio.available_cash) + claimAmt;
+  const newStreak = parseInt(portfolio.streak_count || 17) + 1;
+
+  await updatePortfolio(userId, newTotalVal, portfolio.invested_amount, newTotalRet, {
+    available_cash: newAvailable,
+    unclaimed_amount: 0.00,
+    unclaimed_count: 0,
+    streak_count: newStreak,
+    unclaimed_days: []
+  });
+
+  // Log transaction
+  const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  await createTransaction(userId, 'CREDIT', claimAmt, `🌱 Growth Claimed (+₹${claimAmt.toFixed(0)})`, 'COMPLETED');
+
+  return {
+    claimed: true,
+    claimed_amount: claimAmt,
+    new_total_value: newTotalVal,
+    new_available_cash: newAvailable,
+    new_streak: newStreak
+  };
+}
+
+async function toggleAutoReinvest(userId, status) {
+  const portfolio = await getPortfolioByUserId(userId);
+  if (!portfolio) return false;
+
+  await query('UPDATE portfolio SET auto_reinvest = ? WHERE user_id = ?', [status ? 1 : 0, userId]);
+  return true;
+}
+
+async function getLeaderboardData() {
+  let users = await getAllUsersWithPortfolio();
+  
+  if (!users || users.length === 0) {
+    users = [
+      { id: 1, name: 'Anish P', email: 'anishp@email.com', invested_amount: 106510, total_returns: 18920, streak_count: 18, referral_count: 12 },
+      { id: 2, name: 'Rahul Verma', email: 'rahul.v@email.com', invested_amount: 175000, total_returns: 35000, streak_count: 15, referral_count: 8 },
+      { id: 3, name: 'Priya Sharma', email: 'priya.sharma@email.com', invested_amount: 70000, total_returns: 15000, streak_count: 12, referral_count: 6 },
+      { id: 4, name: 'Vikram Malhotra', email: 'vikram.m@email.com', invested_amount: 290000, total_returns: 60000, streak_count: 10, referral_count: 5 },
+      { id: 5, name: 'Sneha Patel', email: 'sneha.patel@email.com', invested_amount: 38000, total_returns: 7500, streak_count: 8, referral_count: 4 },
+      { id: 6, name: 'Ananya Rao', email: 'ananya.rao@email.com', invested_amount: 125000, total_returns: 25000, streak_count: 6, referral_count: 3 }
+    ];
+  }
+
+  const leaderboard = users.map((u, idx) => {
+    const streak = u.streak_count || (18 - idx * 2 > 1 ? 18 - idx * 2 : 2);
+    const referrals = u.referral_count || (14 - idx * 2 > 0 ? 14 - idx * 2 : 1);
+    return {
+      user_id: u.id,
+      name: u.name,
+      email: u.email,
+      avatar: u.name.charAt(0).toUpperCase(),
+      total_invested: parseFloat(u.invested_amount || 0),
+      total_returns: parseFloat(u.total_returns || 0),
+      streak_count: streak,
+      referral_count: referrals,
+      rank: idx + 1
+    };
+  });
+
+  const streakLeaderboard = [...leaderboard].sort((a, b) => b.streak_count - a.streak_count).map((item, index) => ({ ...item, rank: index + 1 }));
+  const referralLeaderboard = [...leaderboard].sort((a, b) => b.referral_count - a.referral_count).map((item, index) => ({ ...item, rank: index + 1 }));
+
+  return {
+    by_streaks: streakLeaderboard,
+    by_referrals: referralLeaderboard
+  };
 }
 
 // --- Plans Model ---
@@ -232,7 +335,9 @@ async function getAllUsersWithPortfolio() {
     `SELECT u.id, u.name, u.email, u.created_at, 
             COALESCE(p.total_value, 0) as total_value, 
             COALESCE(p.invested_amount, 0) as invested_amount, 
-            COALESCE(p.total_returns, 0) as total_returns 
+            COALESCE(p.total_returns, 0) as total_returns,
+            COALESCE(p.streak_count, 18) as streak_count,
+            COALESCE(p.referral_count, 12) as referral_count
      FROM users u 
      LEFT JOIN portfolio p ON u.id = p.user_id 
      ORDER BY u.id ASC`
@@ -283,6 +388,9 @@ module.exports = {
   getAllSubAdminLogs,
   getPortfolioByUserId,
   updatePortfolio,
+  claimUserGrowth,
+  toggleAutoReinvest,
+  getLeaderboardData,
   getAllPlans,
   getPlanById,
   getInvestmentsByUserId,

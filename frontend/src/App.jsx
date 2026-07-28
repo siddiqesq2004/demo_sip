@@ -18,6 +18,8 @@ import InvestPage from './pages/InvestPage';
 import PortfolioPage from './pages/PortfolioPage';
 import ActivityPage from './pages/ActivityPage';
 import ProfilePage from './pages/ProfilePage';
+import WalletPage from './pages/WalletPage';
+import LeaderboardPage from './pages/LeaderboardPage';
 
 // Admin Pages
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -52,6 +54,8 @@ export default function App() {
             <Route path="plans/:id" element={<InvestmentDetailsPage />} />
             <Route path="invest" element={<InvestPage />} />
             <Route path="portfolio" element={<PortfolioPage />} />
+            <Route path="wallet" element={<WalletPage />} />
+            <Route path="leaderboard" element={<LeaderboardPage />} />
             <Route path="activity" element={<ActivityPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>

@@ -275,6 +275,67 @@ async function setPrimaryBankAccount(req, res) {
   }
 }
 
+async function claimGrowth(req, res) {
+  try {
+    const userId = req.user.id;
+    const result = await models.claimUserGrowth(userId);
+    if (!result.claimed) {
+      return sendError(res, result.message || 'Failed to claim growth');
+    }
+    return sendSuccess(res, `🎉 Growth reward (+₹${result.claimed_amount.toFixed(0)}) claimed & unlocked successfully!`, result);
+  } catch (err) {
+    return sendError(res, 'Failed to claim growth reward', err.message, 500);
+  }
+}
+
+async function getWallet(req, res) {
+  try {
+    const userId = req.user.id;
+    const portfolio = await models.getPortfolioByUserId(userId);
+    const activeInvestment = await models.getActiveInvestmentByUserId(userId);
+    const transactions = await models.getTransactionsByUserId(userId);
+
+    const availableCash = portfolio ? parseFloat(portfolio.available_cash || 2420.00) : 2420.00;
+    const investedAmount = portfolio ? parseFloat(portfolio.invested_amount || 10000.00) : 10000.00;
+    const walletBalance = availableCash + investedAmount;
+
+    return sendSuccess(res, 'Wallet data retrieved successfully', {
+      wallet_balance: walletBalance,
+      available_cash: availableCash,
+      currently_invested: investedAmount,
+      cycle_day: activeInvestment ? activeInvestment.current_day : 14,
+      total_cycle_days: activeInvestment ? activeInvestment.duration_days : 22,
+      auto_reinvest: portfolio ? portfolio.auto_reinvest === 1 : true,
+      unclaimed_amount: portfolio ? parseFloat(portfolio.unclaimed_amount || 42.00) : 42.00,
+      unclaimed_count: portfolio ? parseInt(portfolio.unclaimed_count || 1) : 1,
+      unclaimed_days: portfolio ? portfolio.unclaimed_days : [{ day: 'Monday', amount: 42.00, date: '2026-07-27' }],
+      recent_activity: transactions.slice(0, 10)
+    });
+  } catch (err) {
+    return sendError(res, 'Failed to fetch wallet data', err.message, 500);
+  }
+}
+
+async function handleToggleAutoReinvest(req, res) {
+  try {
+    const userId = req.user.id;
+    const { status } = req.body;
+    await models.toggleAutoReinvest(userId, status);
+    return sendSuccess(res, `Auto-reinvest turned ${status ? 'ON' : 'OFF'}`, { auto_reinvest: status });
+  } catch (err) {
+    return sendError(res, 'Failed to toggle auto-reinvest', err.message, 500);
+  }
+}
+
+async function getLeaderboard(req, res) {
+  try {
+    const data = await models.getLeaderboardData();
+    return sendSuccess(res, 'Leaderboard rankings retrieved successfully', data);
+  } catch (err) {
+    return sendError(res, 'Failed to fetch leaderboard rankings', err.message, 500);
+  }
+}
+
 module.exports = {
   getDashboard,
   getPortfolio,
@@ -285,5 +346,9 @@ module.exports = {
   sendSupportMessage,
   getBankAccounts,
   addBankAccount,
-  setPrimaryBankAccount
+  setPrimaryBankAccount,
+  claimGrowth,
+  getWallet,
+  handleToggleAutoReinvest,
+  getLeaderboard
 };

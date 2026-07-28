@@ -13,6 +13,12 @@ router.post('/withdraw', authenticateUser, userController.requestWithdrawal);
 router.get('/support/messages', authenticateUser, userController.getSupportMessages);
 router.post('/support/message', authenticateUser, userController.sendSupportMessage);
 
+// Growth Claim & Streaks Endpoints
+router.post('/claim-growth', authenticateUser, userController.claimGrowth);
+router.get('/wallet', authenticateUser, userController.getWallet);
+router.post('/wallet/auto-reinvest', authenticateUser, userController.handleToggleAutoReinvest);
+router.get('/leaderboard', authenticateUser, userController.getLeaderboard);
+
 // Bank Accounts Endpoints
 router.get('/bank-accounts', authenticateUser, userController.getBankAccounts);
 router.post('/bank-accounts', authenticateUser, userController.addBankAccount);
