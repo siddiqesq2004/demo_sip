@@ -49,7 +49,7 @@ const LeaderboardPage = () => {
     <div className="bg-[#F9FAFB] min-h-screen pb-28 text-gray-900">
       
       {/* --- Top Emerald Hero Header --- */}
-      <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] text-white pt-6 pb-12 px-5 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] text-white pt-12 pb-12 px-5 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-xs font-bold text-emerald-300 uppercase tracking-widest">Community Insights</span>

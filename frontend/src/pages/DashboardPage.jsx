@@ -49,7 +49,7 @@ const DashboardPage = () => {
     <div className="bg-[#F9FAFB] min-h-screen pb-24 text-gray-900">
       
       {/* --- Top Welcome Bar --- */}
-      <div className="bg-white px-5 pt-4 pb-3 flex items-center justify-between border-b border-gray-100">
+      <div className="bg-white px-5 pt-12 pb-3 flex items-center justify-between border-b border-gray-100">
         <div>
           <span className="text-xs font-semibold text-gray-400 block">Good Morning,</span>
           <div className="flex items-center gap-2">

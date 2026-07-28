@@ -73,7 +73,7 @@ const WalletPage = () => {
     <div className="bg-[#F9FAFB] min-h-screen pb-24 text-gray-900">
       
       {/* --- Top Header --- */}
-      <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-30">
+      <div className="bg-white px-5 pt-12 pb-3 border-b border-gray-100 flex items-center justify-between sticky top-0 z-30">
         <h1 className="text-xl font-bold text-[#062E23] tracking-tight">Credora Wallet</h1>
         <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50">
           <Settings size={20} />

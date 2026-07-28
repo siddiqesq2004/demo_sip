@@ -209,6 +209,48 @@
       "email": "ananya.rao@email.com",
       "password": "$2a$10$4YWn6d9ycWDgEVGALV9Pw.N/bs0jB6jA6vbnrxZfbPmJpxmd73fJC",
       "created_at": "2026-07-28 12:57:46"
+    },
+    {
+      "id": 31,
+      "name": "Anish P",
+      "email": "anishp@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 32,
+      "name": "Priya Sharma",
+      "email": "priya.sharma@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 33,
+      "name": "Rahul Verma",
+      "email": "rahul.v@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 34,
+      "name": "Sneha Patel",
+      "email": "sneha.patel@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 35,
+      "name": "Vikram Malhotra",
+      "email": "vikram.m@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 36,
+      "name": "Ananya Rao",
+      "email": "ananya.rao@email.com",
+      "password": "$2a$10$KKEEm0fejPW6BAgaKJEPqe5SiqIKsEhDT0odf0CjkuCO0uYJaCSGa",
+      "created_at": "2026-07-28 13:34:09"
     }
   ],
   "admins": [
@@ -882,6 +924,26 @@
       "target_user_id": 26,
       "target_user_name": "Priya Sharma",
       "created_at": "2026-07-28 12:57:46"
+    },
+    {
+      "id": 62,
+      "subadmin_id": 5,
+      "subadmin_name": "Karan Singh",
+      "action_type": "WITHDRAWAL_APPROVAL",
+      "description": "Approved ₹18,920.00 payout to HDFC Bank **** 4921",
+      "target_user_id": 31,
+      "target_user_name": "Anish P",
+      "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 63,
+      "subadmin_id": 4,
+      "subadmin_name": "Neha Gupta",
+      "action_type": "SUPPORT_CHAT_REPLY",
+      "description": "Answered query regarding 22-day compounding returns",
+      "target_user_id": 32,
+      "target_user_name": "Priya Sharma",
+      "created_at": "2026-07-28 13:34:11"
     }
   ],
   "portfolio": [
@@ -1140,43 +1202,43 @@
     {
       "id": 37,
       "user_id": 31,
-      "total_value": 231940,
-      "invested_amount": 213020,
+      "total_value": 338450,
+      "invested_amount": 319530,
       "total_returns": 18920
     },
     {
       "id": 38,
       "user_id": 32,
-      "total_value": 155000,
-      "invested_amount": 140000,
+      "total_value": 225000,
+      "invested_amount": 210000,
       "total_returns": 15000
     },
     {
       "id": 39,
       "user_id": 33,
-      "total_value": 385000,
-      "invested_amount": 350000,
+      "total_value": 560000,
+      "invested_amount": 525000,
       "total_returns": 35000
     },
     {
       "id": 40,
       "user_id": 34,
-      "total_value": 83500,
-      "invested_amount": 76000,
+      "total_value": 121500,
+      "invested_amount": 114000,
       "total_returns": 7500
     },
     {
       "id": 41,
       "user_id": 35,
-      "total_value": 640000,
-      "invested_amount": 580000,
+      "total_value": 930000,
+      "invested_amount": 870000,
       "total_returns": 60000
     },
     {
       "id": 42,
       "user_id": 36,
-      "total_value": 275000,
-      "invested_amount": 250000,
+      "total_value": 400000,
+      "invested_amount": 375000,
       "total_returns": 25000
     },
     {
@@ -1637,6 +1699,48 @@
     {
       "id": 108,
       "user_id": 30,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 109,
+      "user_id": 31,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 110,
+      "user_id": 32,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 111,
+      "user_id": 33,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 112,
+      "user_id": 34,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 113,
+      "user_id": 35,
+      "total_value": 0,
+      "invested_amount": 0,
+      "total_returns": 0
+    },
+    {
+      "id": 114,
+      "user_id": 36,
       "total_value": 0,
       "invested_amount": 0,
       "total_returns": 0
@@ -3183,6 +3287,66 @@
       "total_expected": 13,
       "status": "ACTIVE",
       "created_at": "2026-07-28 12:57:46"
+    },
+    {
+      "id": 146,
+      "user_id": 31,
+      "plan_id": 1,
+      "amount": 106510,
+      "expected_returns": 23432.2,
+      "total_expected": 8,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:10"
+    },
+    {
+      "id": 147,
+      "user_id": 32,
+      "plan_id": 2,
+      "amount": 70000,
+      "expected_returns": 15400,
+      "total_expected": 9,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:10"
+    },
+    {
+      "id": 148,
+      "user_id": 33,
+      "plan_id": 3,
+      "amount": 175000,
+      "expected_returns": 38500,
+      "total_expected": 10,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:10"
+    },
+    {
+      "id": 149,
+      "user_id": 34,
+      "plan_id": 4,
+      "amount": 38000,
+      "expected_returns": 8360,
+      "total_expected": 11,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:10"
+    },
+    {
+      "id": 150,
+      "user_id": 35,
+      "plan_id": 5,
+      "amount": 290000,
+      "expected_returns": 63800,
+      "total_expected": 12,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 151,
+      "user_id": 36,
+      "plan_id": 6,
+      "amount": 125000,
+      "expected_returns": 27500,
+      "total_expected": 13,
+      "status": "ACTIVE",
+      "created_at": "2026-07-28 13:34:11"
     }
   ],
   "withdrawals": [
@@ -3915,6 +4079,45 @@
       "processed_by_name": "Karan Singh",
       "created_at": "2026-07-24 14:00:00",
       "processed_at": "2026-07-24 14:15:00"
+    },
+    {
+      "id": 57,
+      "user_id": 33,
+      "amount": 25000,
+      "bank_name": "HDFC Bank Ltd",
+      "account_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "status": "PENDING_APPROVAL",
+      "processed_by_subadmin_id": null,
+      "processed_by_name": null,
+      "created_at": "2026-07-25 10:30:00",
+      "processed_at": null
+    },
+    {
+      "id": 58,
+      "user_id": 32,
+      "amount": 12000,
+      "bank_name": "ICICI Bank Ltd",
+      "account_no": "•••• •••• 4431",
+      "ifsc": "ICIC0008832",
+      "status": "PENDING_APPROVAL",
+      "processed_by_subadmin_id": null,
+      "processed_by_name": null,
+      "created_at": "2026-07-25 11:15:00",
+      "processed_at": null
+    },
+    {
+      "id": 59,
+      "user_id": 31,
+      "amount": 18920,
+      "bank_name": "HDFC Bank Ltd",
+      "account_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "status": "APPROVED",
+      "processed_by_subadmin_id": 5,
+      "processed_by_name": "Karan Singh",
+      "created_at": "2026-07-24 14:00:00",
+      "processed_at": "2026-07-24 14:15:00"
     }
   ],
   "support_chats": [
@@ -4050,6 +4253,33 @@
     {
       "id": 15,
       "user_id": 27,
+      "subadmin_id": 2,
+      "subadmin_name": "Neha Gupta",
+      "initial_query": "I submitted a withdrawal request of ₹25,000. How long for approval?",
+      "status": "OPEN",
+      "created_at": "2026-07-25 10:35:00"
+    },
+    {
+      "id": 16,
+      "user_id": 31,
+      "subadmin_id": 2,
+      "subadmin_name": "Awaiting Free Official",
+      "initial_query": "Hi, when will my daily 1% payout arrive today?",
+      "status": "OPEN",
+      "created_at": "2026-07-25 11:00:00"
+    },
+    {
+      "id": 17,
+      "user_id": 32,
+      "subadmin_id": 4,
+      "subadmin_name": "Neha Gupta",
+      "initial_query": "When will my 45-day accelerator daily return be credited?",
+      "status": "IN_CONVERSATION",
+      "created_at": "2026-07-25 09:30:00"
+    },
+    {
+      "id": 18,
+      "user_id": 33,
       "subadmin_id": 2,
       "subadmin_name": "Neha Gupta",
       "initial_query": "I submitted a withdrawal request of ₹25,000. How long for approval?",
@@ -4301,6 +4531,38 @@
     {
       "id": 31,
       "chat_id": 15,
+      "sender_type": "user",
+      "sender_name": "Rahul Verma",
+      "text": "Hi support, I requested ₹25,000 payout. Please confirm approval timeline.",
+      "created_at": "2026-07-25 10:35:00"
+    },
+    {
+      "id": 32,
+      "chat_id": 16,
+      "sender_type": "user",
+      "sender_name": "Anish P",
+      "text": "Hi, when will my daily 1% payout arrive today?",
+      "created_at": "2026-07-25 11:00:00"
+    },
+    {
+      "id": 33,
+      "chat_id": 17,
+      "sender_type": "user",
+      "sender_name": "Priya Sharma",
+      "text": "Hi, when will my daily 1.11% payout arrive today?",
+      "created_at": "2026-07-25 09:30:00"
+    },
+    {
+      "id": 34,
+      "chat_id": 17,
+      "sender_type": "subadmin",
+      "sender_name": "Neha Gupta (Sub-Admin)",
+      "text": "Hello Priya! Daily returns are credited automatically every working day at 09:30 AM.",
+      "created_at": "2026-07-25 09:45:00"
+    },
+    {
+      "id": 35,
+      "chat_id": 18,
       "sender_type": "user",
       "sender_name": "Rahul Verma",
       "text": "Hi support, I requested ₹25,000 payout. Please confirm approval timeline.",
@@ -5225,6 +5487,42 @@
       "description": "Invested in 90 Day Wealth Builder",
       "status": "COMPLETED",
       "created_at": "2026-07-28 12:57:47"
+    },
+    {
+      "id": 103,
+      "user_id": 31,
+      "type": "WITHDRAWAL",
+      "amount": 18920,
+      "description": "Withdrawal to HDFC Bank (**** 4921) - Approved by Karan Singh",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 104,
+      "user_id": 31,
+      "type": "DAILY_RETURN",
+      "amount": 1065.1,
+      "description": "Daily Return Received - 1% of ₹1,06,510.00",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 105,
+      "user_id": 32,
+      "type": "INVESTMENT",
+      "amount": 70000,
+      "description": "Invested in 45 Day Accelerator Plan",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 106,
+      "user_id": 33,
+      "type": "INVESTMENT",
+      "amount": 175000,
+      "description": "Invested in 90 Day Wealth Builder",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:34:11"
     }
   ],
   "bank_accounts": [
@@ -6242,7 +6540,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6260,7 +6558,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6269,7 +6567,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6278,7 +6576,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6287,7 +6585,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6296,7 +6594,7 @@
       "name": "HDFC Bank Ltd",
       "acc_no": "•••• •••• 4921",
       "ifsc": "HDFC0001234",
-      "is_primary": 1,
+      "is_primary": 0,
       "created_at": "2026-07-27 12:15:04"
     },
     {
@@ -6991,6 +7289,69 @@
       "ifsc": "HDFC0001234",
       "is_primary": 1,
       "created_at": "2026-07-28 12:57:46"
+    },
+    {
+      "id": 197,
+      "user_id": 31,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 198,
+      "user_id": 31,
+      "name": "ICICI Bank Ltd",
+      "acc_no": "•••• •••• 4431",
+      "ifsc": "ICIC0008832",
+      "is_primary": 0,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 199,
+      "user_id": 32,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 200,
+      "user_id": 33,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 201,
+      "user_id": 34,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 202,
+      "user_id": 35,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:09"
+    },
+    {
+      "id": 203,
+      "user_id": 36,
+      "name": "HDFC Bank Ltd",
+      "acc_no": "•••• •••• 4921",
+      "ifsc": "HDFC0001234",
+      "is_primary": 1,
+      "created_at": "2026-07-28 13:34:10"
     }
   ]
 }
