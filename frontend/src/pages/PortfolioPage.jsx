@@ -68,7 +68,7 @@ const PortfolioPage = () => {
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-24 text-[#101828]">
       {/* Header */}
-      <header className="px-4 py-4 flex items-center justify-between sticky top-0 bg-white z-10 border-b border-gray-100">
+      <header className="px-4 pt-12 pb-3.5 flex items-center justify-between sticky top-0 bg-white z-10 border-b border-gray-100">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
           <svg className="w-6 h-6 text-[#101828]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

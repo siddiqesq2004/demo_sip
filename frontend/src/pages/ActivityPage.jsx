@@ -146,7 +146,7 @@ const ActivityPage = () => {
   return (
     <div className="min-h-screen bg-white pb-24">
       {/* Header */}
-      <header className="px-4 pt-10 pb-4 sticky top-0 bg-white z-10 border-b border-gray-100">
+      <header className="px-4 pt-12 pb-4 sticky top-0 bg-white z-10 border-b border-gray-100">
         <h1 className="text-2xl font-bold text-[#101828]">Activity</h1>
       </header>
 

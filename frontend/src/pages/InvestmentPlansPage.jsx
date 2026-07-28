@@ -54,7 +54,7 @@ const InvestmentPlansPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <div className="bg-white px-4 py-4 sticky top-0 z-10 flex items-center border-b border-gray-100">
+      <div className="bg-white px-4 pt-12 pb-3.5 sticky top-0 z-10 flex items-center border-b border-gray-100">
         <button onClick={() => navigate(-1)} className="mr-3 p-1 rounded-full hover:bg-gray-100 text-[#101828]">
           <ArrowLeft size={24} />
         </button>

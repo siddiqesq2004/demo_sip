@@ -11,7 +11,7 @@ export default function PageHeader({
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between py-4 px-5 bg-credora-deep text-white shadow-sm border-b border-emerald-950/60 sticky top-0 z-30">
+    <div className="flex items-center justify-between pt-12 pb-3.5 px-5 bg-credora-deep text-white shadow-sm border-b border-emerald-950/60 sticky top-0 z-30">
       <div className="flex items-center gap-3">
         {showBack && (
           <button

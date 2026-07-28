@@ -950,9 +950,9 @@
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 97716,
+      "total_value": 97884,
       "invested_amount": 116510,
-      "total_returns": 126
+      "total_returns": 294
     },
     {
       "id": 2,
@@ -5523,6 +5523,42 @@
       "description": "Invested in 90 Day Wealth Builder",
       "status": "COMPLETED",
       "created_at": "2026-07-28 13:34:11"
+    },
+    {
+      "id": 107,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:54:07"
+    },
+    {
+      "id": 108,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:54:13"
+    },
+    {
+      "id": 109,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:54:17"
+    },
+    {
+      "id": 110,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-28 13:54:23"
     }
   ],
   "bank_accounts": [

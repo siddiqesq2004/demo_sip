@@ -33,10 +33,10 @@ const PhoneFrame = ({ children }) => {
     }
   }, []);
 
-  // Pages that have a light header (white background at the top)
-  const isLightHeaderPage = ['/portfolio', '/activity', '/plans'].includes(location.pathname);
-  const textColor = isLightHeaderPage ? 'text-gray-900' : 'text-white';
-  const fillColor = isLightHeaderPage ? '#111827' : '#FFFFFF';
+  // Dark pages that have a dark header background
+  const isDarkHeaderPage = ['/splash', '/admin/login'].includes(location.pathname);
+  const textColor = isDarkHeaderPage ? 'text-white' : 'text-gray-900';
+  const fillColor = isDarkHeaderPage ? '#FFFFFF' : '#111827';
 
   // Calculate battery inner fill width (max 18px)
   const batteryInnerWidth = Math.max(2, Math.min(18, (batteryLevel / 100) * 18));
