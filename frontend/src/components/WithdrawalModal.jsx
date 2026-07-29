@@ -110,27 +110,34 @@ export default function WithdrawalModal({ isOpen, onClose, totalWalletBalance = 
             </div>
 
             <div>
-              <h4 className="text-lg font-black text-[#062E23]">Withdrawal Submitted!</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                Your request of <strong className="text-gray-800">{formatCurrency(parseFloat(amount) || 1000)}</strong> has been deducted from your Total Wallet Balance & sent to our Sub-Admin queue for approval.
+              <h4 className="text-lg font-black text-[#062E23]">Approval Request Sent!</h4>
+              <p className="text-xs text-[#062E23] font-semibold mt-1 leading-relaxed">
+                Your withdrawal request of <strong className="text-emerald-700">{formatCurrency(parseFloat(amount) || 1000)}</strong> has been sent to sub-admin officials for review.
               </p>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-left text-xs text-amber-900 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-amber-800">
-                <ShieldCheck size={16} className="text-amber-600" />
-                <span>Approval Workflow Active</span>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-left text-xs text-emerald-950 space-y-2 shadow-xs">
+              <div className="flex items-center gap-1.5 font-extrabold text-[#062E23]">
+                <ShieldCheck size={18} className="text-[#00A859]" />
+                <span>Approval Request Sent to Officials</span>
               </div>
-              <p className="text-[11px] text-amber-800/90 leading-tight">
-                Reason: "{remarks}" • Assigned to available Sub-Admin. Payout will be processed upon verification.
+              
+              <p className="text-xs text-emerald-900 leading-normal font-medium">
+                After official review, the amount will be sent to your account shortly. Please <strong>check the notification icon (🔔) frequently</strong> for live approval updates.
               </p>
+
+              {remarks && (
+                <div className="pt-2 border-t border-emerald-200/80 text-[11px] text-emerald-800 font-medium">
+                  Reason provided: "{remarks}"
+                </div>
+              )}
             </div>
 
             <button
               onClick={handleResetAndClose}
               className="w-full bg-[#062E23] hover:bg-[#042018] text-white font-bold py-3.5 rounded-2xl text-sm transition-all shadow-md active:scale-95"
             >
-              Done
+              Understand & Check Notifications
             </button>
           </div>
         ) : (

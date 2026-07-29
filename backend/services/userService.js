@@ -19,34 +19,34 @@ async function getDashboardData(userId) {
   const notifications = [];
 
   userWithdrawals.forEach((w) => {
-    // 1. Always include the Withdrawal Requested message with the original request timestamp
+    // 1. Approval Request Sent to Officials
     notifications.push({
       id: `w-requested-${w.id}`,
       type: 'withdrawal_pending',
-      title: 'Withdrawal Requested',
-      desc: `₹${w.amount.toLocaleString()} requested for payout to ${w.bank_name}. Awaiting official review.`,
+      title: 'Approval Request Sent to Officials',
+      desc: `Approval request of ₹${parseFloat(w.amount).toLocaleString('en-IN')} sent to sub-admin officials (Reason: "${w.remarks || 'Personal Savings'}"). After review, amount will be sent to your account shortly. Please check notifications frequently for updates.`,
       time: w.created_at || 'Just now',
       unread: w.status === 'PENDING_APPROVAL'
     });
 
-    // 2. If APPROVED, include separate Withdrawal Approved message with processed timestamp
+    // 2. If APPROVED, include separate Withdrawal Approved message
     if (w.status === 'APPROVED' || w.status === 'COMPLETED') {
       notifications.push({
         id: `w-approved-${w.id}`,
         type: 'withdrawal_approved',
-        title: 'Withdrawal Approved',
-        desc: `₹${w.amount.toLocaleString()} has been successfully processed and sent to your primary bank: ${w.bank_name}.`,
+        title: 'Withdrawal Approved & Transferred',
+        desc: `₹${parseFloat(w.amount).toLocaleString('en-IN')} approved by ${w.processed_by_name || 'Sub-Admin Official'} and transferred to your ${w.bank_name} account. Debited from Total Wallet Balance.`,
         time: w.processed_at || w.created_at || 'Just now',
         unread: true
       });
     } 
-    // 3. If REJECTED, include separate Withdrawal Rejected message with processed timestamp
+    // 3. If REJECTED
     else if (w.status === 'REJECTED') {
       notifications.push({
         id: `w-rejected-${w.id}`,
         type: 'withdrawal_rejected',
-        title: 'Withdrawal Rejected',
-        desc: `Your payout request of ₹${w.amount.toLocaleString()} to ${w.bank_name} was not approved.`,
+        title: 'Withdrawal Request Rejected',
+        desc: `Your payout request of ₹${parseFloat(w.amount).toLocaleString('en-IN')} to ${w.bank_name} was reviewed and rejected by officials.`,
         time: w.processed_at || w.created_at || 'Just now',
         unread: true
       });

@@ -4322,6 +4322,20 @@
       "processed_by_name": "Karan Singh",
       "created_at": "2026-07-24 14:00:00",
       "processed_at": "2026-07-24 14:15:00"
+    },
+    {
+      "id": 63,
+      "user_id": 1,
+      "amount": 18000,
+      "bank_name": "HDFC Bank",
+      "account_no": "49218820391",
+      "ifsc": "HDFC0001234",
+      "status": "PENDING_APPROVAL",
+      "processed_by_subadmin_id": null,
+      "processed_by_name": null,
+      "created_at": "2026-07-29 10:13:20",
+      "processed_at": null,
+      "remarks": "Savings"
     }
   ],
   "support_chats": [
