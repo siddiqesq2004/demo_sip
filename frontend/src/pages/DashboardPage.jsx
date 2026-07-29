@@ -300,7 +300,25 @@ const DashboardPage = () => {
       <AddMoneyModal
         isOpen={showAddMoneyModal}
         onClose={() => setShowAddMoneyModal(false)}
-        onSuccess={() => fetchDashboardData()}
+        onSuccess={(depositedAmt) => {
+          if (depositedAmt) {
+            const num = parseFloat(depositedAmt);
+            setDashboardData(prev => {
+              if (!prev) return prev;
+              const currentVal = prev.portfolio?.total_value || 118930.00;
+              const currentAvailable = prev.portfolio?.available_cash || 2420.00;
+              return {
+                ...prev,
+                portfolio: {
+                  ...prev.portfolio,
+                  total_value: currentVal + num,
+                  available_cash: currentAvailable + num
+                }
+              };
+            });
+          }
+          fetchDashboardData();
+        }}
       />
 
       {/* --- Withdrawal Modal --- */}

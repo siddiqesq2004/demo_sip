@@ -51,9 +51,36 @@ const WalletPage = () => {
           { type: 'WITHDRAWAL', amount: -1000, description: 'Bank Cashout Requested', created_at: '12 May, 6:30 PM' }
         ]
       });
-    } fontinally: {
+    } finally {
       setLoading(false);
     }
+  };
+
+  const handleDepositSuccess = (depositedAmt) => {
+    if (depositedAmt) {
+      const num = parseFloat(depositedAmt);
+      setWalletData(prev => {
+        const curAvailable = prev?.available_cash !== undefined ? parseFloat(prev.available_cash) : 2420.00;
+        const curInvested = prev?.currently_invested !== undefined ? parseFloat(prev.currently_invested) : 10000.00;
+        const newAvailable = curAvailable + num;
+        const newTotal = newAvailable + curInvested;
+        const newActivity = [
+          { type: 'DEPOSIT', amount: num, description: 'Added Money via UPI', created_at: 'Just now' },
+          ...(prev?.recent_activity || [])
+        ];
+        return {
+          ...prev,
+          available_cash: newAvailable,
+          wallet_balance: newTotal,
+          recent_activity: newActivity
+        };
+      });
+    }
+    fetchWalletData();
+  };
+
+  const handleWithdrawalSuccess = () => {
+    fetchWalletData();
   };
 
   const handleToggleAutoReinvest = async () => {
@@ -68,9 +95,9 @@ const WalletPage = () => {
 
   if (loading) return <Loader fullScreen message="Fetching Credora Wallet..." />;
 
-  const walletBalance = walletData?.wallet_balance || 12420.00;
-  const currentlyInvested = walletData?.currently_invested || 10000.00;
-  const availableCash = walletData?.available_cash || 2420.00;
+  const availableCash = walletData?.available_cash !== undefined ? parseFloat(walletData.available_cash) : 2420.00;
+  const currentlyInvested = walletData?.currently_invested !== undefined ? parseFloat(walletData.currently_invested) : 10000.00;
+  const walletBalance = availableCash + currentlyInvested;
   const cycleDay = walletData?.cycle_day || 14;
   const unclaimedAmount = walletData?.unclaimed_amount || 42.00;
   const recentActivity = walletData?.recent_activity || [];
@@ -122,7 +149,7 @@ const WalletPage = () => {
 
             <div className="pt-2 border-t border-white/10">
               <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Available Cash</span>
-              <span className="text-sm font-bold text-white">₹{availableCash.toLocaleString('en-IN')}</span>
+              <span className="text-sm font-extrabold text-emerald-300">₹{availableCash.toLocaleString('en-IN')}</span>
             </div>
 
             <div className="pt-2 border-t border-white/10 flex items-center justify-between">
@@ -239,7 +266,7 @@ const WalletPage = () => {
       <AddMoneyModal
         isOpen={showAddMoneyModal}
         onClose={() => setShowAddMoneyModal(false)}
-        onSuccess={() => fetchWalletData()}
+        onSuccess={handleDepositSuccess}
       />
 
       {/* --- Withdrawal Modal --- */}
@@ -247,7 +274,7 @@ const WalletPage = () => {
         isOpen={showWithdrawalModal}
         onClose={() => setShowWithdrawalModal(false)}
         totalWalletBalance={walletBalance}
-        onSuccess={() => fetchWalletData()}
+        onSuccess={handleWithdrawalSuccess}
       />
 
       <SuccessModal 
