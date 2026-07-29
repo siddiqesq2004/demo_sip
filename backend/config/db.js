@@ -253,19 +253,25 @@ function queryMemoryStore(sql, params = []) {
       const totalVal = parseFloat(params[1] || 0);
       const invAmt = parseFloat(params[2] || 0);
       const totRet = parseFloat(params[3] || 0);
+      const availCash = params[4] !== undefined ? parseFloat(params[4]) : 2420.00;
+      const unclaimAmt = params[5] !== undefined ? parseFloat(params[5]) : 42.00;
 
       const pIdx = memoryStore.portfolio.findIndex(p => Number(p.user_id) === Number(userId));
       if (pIdx !== -1) {
         memoryStore.portfolio[pIdx].total_value = totalVal;
         memoryStore.portfolio[pIdx].invested_amount = invAmt;
         memoryStore.portfolio[pIdx].total_returns = totRet;
+        memoryStore.portfolio[pIdx].available_cash = availCash;
+        memoryStore.portfolio[pIdx].unclaimed_amount = unclaimAmt;
       } else {
         memoryStore.portfolio.push({
           id: memoryStore.portfolio.length + 1,
           user_id: userId,
           total_value: totalVal,
           invested_amount: invAmt,
-          total_returns: totRet
+          total_returns: totRet,
+          available_cash: availCash,
+          unclaimed_amount: unclaimAmt
         });
       }
       saveJsonStore();
@@ -384,9 +390,31 @@ function queryMemoryStore(sql, params = []) {
       const userId = params[params.length - 1];
       const idx = memoryStore.portfolio.findIndex(p => Number(p.user_id) === Number(userId));
       if (idx !== -1) {
-        memoryStore.portfolio[idx].total_value = params[0];
-        memoryStore.portfolio[idx].invested_amount = params[1];
-        memoryStore.portfolio[idx].total_returns = params[2];
+        memoryStore.portfolio[idx].total_value = parseFloat(params[0]);
+        memoryStore.portfolio[idx].invested_amount = parseFloat(params[1]);
+        memoryStore.portfolio[idx].total_returns = parseFloat(params[2]);
+        if (params[3] !== undefined) memoryStore.portfolio[idx].available_cash = parseFloat(params[3]);
+        if (params[4] !== undefined) memoryStore.portfolio[idx].unclaimed_amount = parseFloat(params[4]);
+        if (params[5] !== undefined) memoryStore.portfolio[idx].unclaimed_count = parseInt(params[5]);
+        if (params[6] !== undefined) memoryStore.portfolio[idx].streak_count = parseInt(params[6]);
+        if (params[7] !== undefined) memoryStore.portfolio[idx].auto_reinvest = parseInt(params[7]);
+        if (params[8] !== undefined) memoryStore.portfolio[idx].unclaimed_days = params[8];
+        saveJsonStore();
+        return [{ affectedRows: 1 }];
+      } else {
+        memoryStore.portfolio.push({
+          id: memoryStore.portfolio.length + 1,
+          user_id: Number(userId),
+          total_value: parseFloat(params[0] || 0),
+          invested_amount: parseFloat(params[1] || 0),
+          total_returns: parseFloat(params[2] || 0),
+          available_cash: params[3] !== undefined ? parseFloat(params[3]) : 2420.00,
+          unclaimed_amount: params[4] !== undefined ? parseFloat(params[4]) : 42.00,
+          unclaimed_count: params[5] !== undefined ? parseInt(params[5]) : 1,
+          streak_count: params[6] !== undefined ? parseInt(params[6]) : 18,
+          auto_reinvest: params[7] !== undefined ? parseInt(params[7]) : 1,
+          unclaimed_days: params[8] || '[]'
+        });
         saveJsonStore();
         return [{ affectedRows: 1 }];
       }
