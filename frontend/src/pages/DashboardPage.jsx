@@ -284,7 +284,7 @@ const DashboardPage = () => {
       <WithdrawalModal
         isOpen={showWithdrawalModal}
         onClose={() => setShowWithdrawalModal(false)}
-        availableBalance={portfolio.total_value}
+        totalWalletBalance={portfolio.total_value}
         onSuccess={() => fetchDashboardData()}
       />
 

@@ -336,6 +336,21 @@ async function getLeaderboard(req, res) {
   }
 }
 
+async function depositWallet(req, res) {
+  try {
+    const userId = req.user.id;
+    const { amount, payment_method } = req.body;
+    const num = parseFloat(amount);
+    if (!num || num <= 0) {
+      return sendError(res, 'Valid deposit amount is required.');
+    }
+    const result = await models.depositUserWallet(userId, num, payment_method || 'UPI');
+    return sendSuccess(res, `🎉 Successfully deposited ${num} into your wallet!`, result);
+  } catch (err) {
+    return sendError(res, 'Failed to deposit money into wallet', err.message, 500);
+  }
+}
+
 module.exports = {
   getDashboard,
   getPortfolio,
@@ -349,6 +364,7 @@ module.exports = {
   setPrimaryBankAccount,
   claimGrowth,
   getWallet,
+  depositWallet,
   handleToggleAutoReinvest,
   getLeaderboard
 };

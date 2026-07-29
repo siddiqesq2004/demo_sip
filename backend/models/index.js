@@ -238,7 +238,45 @@ async function createWithdrawalRequest(userId, amount, bankName, accountNo, ifsc
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [userId, amount, bankName, accountNo, ifsc, remarks, 'PENDING_APPROVAL', new Date().toISOString().replace('T', ' ').substring(0, 19)]
   );
+
+  // Deduct from portfolio total_value & available_cash
+  const portfolio = await getPortfolioByUserId(userId);
+  if (portfolio) {
+    const newTotal = Math.max(0, parseFloat(portfolio.total_value || 118930) - amount);
+    const newAvailable = Math.max(0, parseFloat(portfolio.available_cash || 2420) - amount);
+    await updatePortfolio(userId, newTotal, portfolio.invested_amount, portfolio.total_returns, {
+      available_cash: newAvailable
+    });
+  }
+
+  // Log debit transaction
+  await createTransaction(userId, 'DEBIT', -amount, `Withdrawal to ${bankName} (${remarks})`, 'PENDING_APPROVAL');
+
   return res.insertId;
+}
+
+async function depositUserWallet(userId, amount, paymentMethod = 'UPI') {
+  const portfolio = await getPortfolioByUserId(userId);
+  const currentTotal = portfolio ? parseFloat(portfolio.total_value || 118930) : 118930;
+  const currentAvailable = portfolio ? parseFloat(portfolio.available_cash || 2420) : 2420;
+  const currentInvested = portfolio ? parseFloat(portfolio.invested_amount || 116510) : 116510;
+
+  const newTotalVal = currentTotal + amount;
+  const newAvailable = currentAvailable + amount;
+
+  await updatePortfolio(userId, newTotalVal, currentInvested, portfolio ? portfolio.total_returns : 18920, {
+    available_cash: newAvailable
+  });
+
+  // Log deposit transaction
+  await createTransaction(userId, 'CREDIT', amount, `Added Money via ${paymentMethod}`, 'COMPLETED');
+
+  return {
+    deposited: true,
+    amount: amount,
+    new_total_value: newTotalVal,
+    new_available_cash: newAvailable
+  };
 }
 
 async function getAllWithdrawals() {
@@ -397,6 +435,7 @@ module.exports = {
   getActiveInvestmentByUserId,
   createInvestment,
   createWithdrawalRequest,
+  depositUserWallet,
   getUserWithdrawals,
   getAllWithdrawals,
   getWithdrawalById,

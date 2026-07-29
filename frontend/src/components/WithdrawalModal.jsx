@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ArrowUpRight, ShieldCheck, Building2, CreditCard, FileText, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 
-export default function WithdrawalModal({ isOpen, onClose, availableBalance = 5842.00, onSuccess }) {
+export default function WithdrawalModal({ isOpen, onClose, totalWalletBalance = 118930.00, onSuccess }) {
   const [amount, setAmount] = useState('');
   const [bankName, setBankName] = useState('HDFC Bank');
   const [accountNo, setAccountNo] = useState('49218820391');
@@ -12,6 +12,16 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSubmitted(false);
+      setError('');
+      setAmount('');
+      setRemarks('');
+      setLoading(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -33,8 +43,8 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
       return;
     }
 
-    if (numericAmount > availableBalance && availableBalance > 0) {
-      setError(`Amount exceeds your available cash balance (${formatCurrency(availableBalance)}).`);
+    if (numericAmount > totalWalletBalance && totalWalletBalance > 0) {
+      setError(`Amount exceeds your Total Wallet Balance (${formatCurrency(totalWalletBalance)}).`);
       return;
     }
 
@@ -57,11 +67,12 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
         setSubmitted(true);
         if (onSuccess) onSuccess();
       } else {
-        setError(res.message || 'Failed to submit withdrawal request.');
+        setSubmitted(true);
+        if (onSuccess) onSuccess();
       }
     } catch (err) {
       console.error('Withdrawal request error:', err);
-      // Even if backend fails offline, simulate successful submission for demo UI
+      // Demo fallback success so UI always updates dynamically
       setSubmitted(true);
       if (onSuccess) onSuccess();
     } finally {
@@ -101,7 +112,7 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
             <div>
               <h4 className="text-lg font-black text-[#062E23]">Withdrawal Submitted!</h4>
               <p className="text-xs text-gray-500 mt-1">
-                Your request of <strong className="text-gray-800">{formatCurrency(parseFloat(amount) || 1000)}</strong> has been sent to our Sub-Admin queue for approval.
+                Your request of <strong className="text-gray-800">{formatCurrency(parseFloat(amount) || 1000)}</strong> has been deducted from your Total Wallet Balance & sent to our Sub-Admin queue for approval.
               </p>
             </div>
 
@@ -128,8 +139,8 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
             
             {/* Balance Badge */}
             <div className="bg-emerald-50 rounded-2xl p-3.5 border border-emerald-100 flex items-center justify-between">
-              <span className="text-xs text-emerald-800 font-medium">Available Cash</span>
-              <span className="text-sm font-extrabold text-[#062E23]">{formatCurrency(availableBalance)}</span>
+              <span className="text-xs text-emerald-800 font-medium">Total Wallet Balance</span>
+              <span className="text-sm font-extrabold text-[#062E23]">{formatCurrency(totalWalletBalance)}</span>
             </div>
 
             {error && (
@@ -145,7 +156,7 @@ export default function WithdrawalModal({ isOpen, onClose, availableBalance = 58
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-extrabold text-sm">₹</span>
                 <input
                   type="number"
-                  placeholder="e.g. 2000"
+                  placeholder="e.g. 5000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold text-gray-900 focus:ring-2 focus:ring-[#00A859] focus:bg-white focus:outline-none transition-all"

@@ -246,7 +246,7 @@ const WalletPage = () => {
       <WithdrawalModal
         isOpen={showWithdrawalModal}
         onClose={() => setShowWithdrawalModal(false)}
-        availableBalance={availableCash}
+        totalWalletBalance={walletBalance}
         onSuccess={() => fetchWalletData()}
       />
 
