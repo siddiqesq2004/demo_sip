@@ -256,17 +256,23 @@ async function createWithdrawalRequest(userId, amount, bankName, accountNo, ifsc
 }
 
 async function depositUserWallet(userId, amount, paymentMethod = 'UPI') {
-  const portfolio = await getPortfolioByUserId(userId);
-  const currentTotal = portfolio ? parseFloat(portfolio.total_value || 118930) : 118930;
-  const currentAvailable = portfolio ? parseFloat(portfolio.available_cash || 2420) : 2420;
-  const currentInvested = portfolio ? parseFloat(portfolio.invested_amount || 116510) : 116510;
+  let portfolio = await getPortfolioByUserId(userId);
+  if (!portfolio) {
+    await updatePortfolio(userId, 118930 + amount, 116510, 18920, { available_cash: 2420 + amount });
+  } else {
+    const currentTotal = parseFloat(portfolio.total_value || 118930);
+    const currentAvailable = parseFloat(portfolio.available_cash || 2420);
+    const currentInvested = parseFloat(portfolio.invested_amount || 116510);
 
-  const newTotalVal = currentTotal + amount;
-  const newAvailable = currentAvailable + amount;
+    const newTotalVal = currentTotal + amount;
+    const newAvailable = currentAvailable + amount;
 
-  await updatePortfolio(userId, newTotalVal, currentInvested, portfolio ? portfolio.total_returns : 18920, {
-    available_cash: newAvailable
-  });
+    await updatePortfolio(userId, newTotalVal, currentInvested, portfolio.total_returns || 18920, {
+      available_cash: newAvailable
+    });
+  }
+
+  const updatedPortfolio = await getPortfolioByUserId(userId);
 
   // Log deposit transaction
   await createTransaction(userId, 'CREDIT', amount, `Added Money via ${paymentMethod}`, 'COMPLETED');
@@ -274,8 +280,8 @@ async function depositUserWallet(userId, amount, paymentMethod = 'UPI') {
   return {
     deposited: true,
     amount: amount,
-    new_total_value: newTotalVal,
-    new_available_cash: newAvailable
+    new_total_value: updatedPortfolio ? parseFloat(updatedPortfolio.total_value) : 118930 + amount,
+    new_available_cash: updatedPortfolio ? parseFloat(updatedPortfolio.available_cash) : 2420 + amount
   };
 }
 

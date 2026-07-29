@@ -93,7 +93,8 @@ async function getDashboardData(userId) {
 
   const investedAmount = parseFloat(portfolio.invested_amount || 0);
   const totalReturns = parseFloat(portfolio.total_returns || 0);
-  const totalValue = investedAmount + totalReturns;
+  const availableCash = parseFloat(portfolio.available_cash !== undefined ? portfolio.available_cash : 2420.00);
+  const totalValue = portfolio.total_value !== undefined ? parseFloat(portfolio.total_value) : (investedAmount + totalReturns + availableCash);
 
   return {
     user: {
@@ -105,6 +106,7 @@ async function getDashboardData(userId) {
       total_value: totalValue,
       invested_amount: investedAmount,
       total_returns: totalReturns,
+      available_cash: availableCash,
       all_time_profit_percent: investedAmount > 0 
         ? ((totalReturns / investedAmount) * 100).toFixed(2)
         : 0

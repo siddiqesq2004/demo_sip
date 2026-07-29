@@ -295,9 +295,9 @@ async function getWallet(req, res) {
     const activeInvestment = await models.getActiveInvestmentByUserId(userId);
     const transactions = await models.getTransactionsByUserId(userId);
 
-    const availableCash = portfolio ? parseFloat(portfolio.available_cash || 2420.00) : 2420.00;
-    const investedAmount = portfolio ? parseFloat(portfolio.invested_amount || 10000.00) : 10000.00;
-    const walletBalance = availableCash + investedAmount;
+    const availableCash = portfolio ? parseFloat(portfolio.available_cash !== undefined ? portfolio.available_cash : 2420.00) : 2420.00;
+    const investedAmount = portfolio ? parseFloat(portfolio.invested_amount !== undefined ? portfolio.invested_amount : 10000.00) : 10000.00;
+    const walletBalance = portfolio && portfolio.total_value !== undefined ? parseFloat(portfolio.total_value) : (availableCash + investedAmount);
 
     return sendSuccess(res, 'Wallet data retrieved successfully', {
       wallet_balance: walletBalance,
