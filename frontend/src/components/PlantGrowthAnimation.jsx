@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 /**
  * PlantGrowthAnimation
@@ -7,10 +7,88 @@ import React, { useMemo } from 'react';
  * Ground line at Y=100 (exact center of 200×200 viewBox).
  * Camera starts at 1:1 showing the full scene, then zooms OUT for tree/forest/world.
  * Roots use organic cubic bezier curves with natural branching.
+ * SKY IS DYNAMIC — adapts to real device clock (day/sunset/night).
  */
+
+// Time-of-day sky configuration
+const getTimeOfDay = (hour) => {
+  // Early morning / Dawn (5-7)
+  if (hour >= 5 && hour < 7) return {
+    skyTop: '#2C3E7B',    skyBot: '#F4A460',
+    sunColor: '#FFB74D',  sunGlow: '#FF8A65',
+    sunX: 40, sunY: 65,   sunR: 10,
+    showMoon: false,      showStars: false,
+    cloudTint: '#FFE0B2', cloudOp: 0.3,
+    label: 'dawn',        bgFill: '#3E5080',
+  };
+  // Morning (7-10)
+  if (hour >= 7 && hour < 10) return {
+    skyTop: '#4AB0D8',    skyBot: '#87CEEB',
+    sunColor: '#FFF9C4',  sunGlow: '#FFD54F',
+    sunX: 155, sunY: 35,  sunR: 12,
+    showMoon: false,      showStars: false,
+    cloudTint: 'white',   cloudOp: 0.3,
+    label: 'morning',     bgFill: '#4AB0D8',
+  };
+  // Midday (10-16)
+  if (hour >= 10 && hour < 16) return {
+    skyTop: '#2196F3',    skyBot: '#64B5F6',
+    sunColor: '#FFF9C4',  sunGlow: '#FFD54F',
+    sunX: 170, sunY: 18,  sunR: 14,
+    showMoon: false,      showStars: false,
+    cloudTint: 'white',   cloudOp: 0.28,
+    label: 'midday',      bgFill: '#2196F3',
+  };
+  // Late afternoon (16-18)
+  if (hour >= 16 && hour < 18) return {
+    skyTop: '#5C8AC7',    skyBot: '#F9A825',
+    sunColor: '#FFB300',  sunGlow: '#FF8F00',
+    sunX: 165, sunY: 55,  sunR: 13,
+    showMoon: false,      showStars: false,
+    cloudTint: '#FFE082',  cloudOp: 0.35,
+    label: 'afternoon',   bgFill: '#5C8AC7',
+  };
+  // Sunset (18-20)
+  if (hour >= 18 && hour < 20) return {
+    skyTop: '#4A1942',    skyBot: '#E65100',
+    sunColor: '#FF6D00',  sunGlow: '#BF360C',
+    sunX: 170, sunY: 75,  sunR: 15,
+    showMoon: false,      showStars: true,
+    cloudTint: '#FF8A65',  cloudOp: 0.4,
+    label: 'sunset',      bgFill: '#4A1942',
+  };
+  // Twilight (20-21)
+  if (hour >= 20 && hour < 21) return {
+    skyTop: '#1A1A40',    skyBot: '#4A2360',
+    sunColor: '#FF6D00',  sunGlow: '#BF360C',
+    sunX: 180, sunY: 90,  sunR: 10,
+    showMoon: true,       showStars: true,
+    cloudTint: '#9575CD',  cloudOp: 0.2,
+    label: 'twilight',    bgFill: '#1A1A40',
+  };
+  // Night (21-5)
+  return {
+    skyTop: '#0a0e1a',    skyBot: '#0d1b2a',
+    sunColor: null,       sunGlow: null,
+    sunX: 0, sunY: 0,     sunR: 0,
+    showMoon: true,       showStars: true,
+    cloudTint: '#37474F',  cloudOp: 0.12,
+    label: 'night',       bgFill: '#0a0e1a',
+  };
+};
+
 const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
   const p = Math.min(day / totalDays, 1);
   const showWorld = day >= 22;
+
+  // Real-time hour — updates every minute
+  const [hour, setHour] = useState(new Date().getHours());
+  useEffect(() => {
+    const interval = setInterval(() => setHour(new Date().getHours()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const tod = getTimeOfDay(hour);
 
   /* ───── CAMERA ─────
      Early days: no zoom (scale=1), showing full half-sky / half-soil.
@@ -207,8 +285,8 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
         style={{ maxWidth: 310, maxHeight: 290 }} xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={day >= 18 ? '#0a1a30' : '#4ab0d8'} />
-            <stop offset="100%" stopColor={day >= 18 ? '#163832' : '#87CEEB'} />
+            <stop offset="0%" stopColor={tod.skyTop} />
+            <stop offset="100%" stopColor={tod.skyBot} />
           </linearGradient>
           <linearGradient id="soilG" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#7B5B3A" />
@@ -221,9 +299,9 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
             <stop offset="100%" stopColor="#66BB6A" />
           </linearGradient>
           <radialGradient id="sunG" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFF9C4" />
-            <stop offset="40%" stopColor="#FFD54F" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#FFB300" stopOpacity="0" />
+            <stop offset="0%" stopColor={tod.sunColor || '#FFF9C4'} />
+            <stop offset="40%" stopColor={tod.sunGlow || '#FFD54F'} stopOpacity="0.7" />
+            <stop offset="100%" stopColor={tod.sunGlow || '#FFB300'} stopOpacity="0" />
           </radialGradient>
           <linearGradient id="grassG" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#7CB342" />
@@ -310,7 +388,7 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
           /* ═══════ DAYS 0-21: GROUND SCENE ═══════ */
           <>
             <rect x="-200" y="-200" width="600" height="600"
-              fill={day >= 18 ? '#0a1a30' : '#4ab0d8'} />
+              fill={tod.bgFill} />
 
             <g style={{
               transform: `scale(${cam.s}) translate(${cam.tx}px, ${cam.ty}px)`,
@@ -321,32 +399,46 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
               {/* ── SKY ── */}
               <rect x="-150" y="-250" width="500" height={GY + 250} fill="url(#skyG)" />
 
-              {/* Clouds */}
+              {/* Clouds — tinted by time of day */}
               {day >= 3 && (
-                <g opacity={day >= 18 ? 0.15 : 0.3}>
-                  <ellipse cx="35" cy="30" rx="18" ry="6" fill="white"
+                <g opacity={tod.cloudOp}>
+                  <ellipse cx="35" cy="30" rx="18" ry="6" fill={tod.cloudTint}
                     style={{ animation: 'cloudDrift 14s linear infinite' }} />
-                  <ellipse cx="40" cy="27" rx="12" ry="4.5" fill="white" />
-                  <ellipse cx="145" cy="22" rx="14" ry="5" fill="white"
+                  <ellipse cx="40" cy="27" rx="12" ry="4.5" fill={tod.cloudTint} />
+                  <ellipse cx="145" cy="22" rx="14" ry="5" fill={tod.cloudTint}
                     style={{ animation: 'cloudDrift 18s 4s linear infinite' }} />
-                  <ellipse cx="150" cy="19" rx="9" ry="3.5" fill="white" />
+                  <ellipse cx="150" cy="19" rx="9" ry="3.5" fill={tod.cloudTint} />
                 </g>
               )}
 
-              {/* Sun */}
-              {sunR > 0 && (
+              {/* Sun — position and color from time of day */}
+              {tod.sunR > 0 && sunR > 0 && (
                 <g>
-                  <circle cx="170" cy="22" r={sunR + 7} fill="url(#sunG)"
+                  <circle cx={tod.sunX} cy={tod.sunY} r={tod.sunR + 6} fill={tod.sunGlow} opacity="0.35"
                     style={{ animation: 'sunPulse 4s ease-in-out infinite' }} />
-                  <circle cx="170" cy="22" r={sunR * 0.4} fill="#FFF9C4" />
+                  <circle cx={tod.sunX} cy={tod.sunY} r={tod.sunR} fill={tod.sunColor} opacity="0.9" />
+                  <circle cx={tod.sunX} cy={tod.sunY} r={tod.sunR * 0.55} fill="#FFF9C4" />
                 </g>
               )}
 
-              {/* Night stars */}
-              {day >= 18 && [
-                [15,10],[45,5],[75,18],[125,8],[165,20],[25,35],[180,12],[55,28],[135,32],[95,-5],[-20,15],[210,25]
+              {/* Moon — visible at night/twilight */}
+              {tod.showMoon && (
+                <g style={{ animation: 'fadeIn 1.5s both' }}>
+                  <circle cx="155" cy="25" r="10" fill="#E8EAF6" />
+                  <circle cx="152" cy="22" r="9.5" fill={tod.skyTop} />
+                  {/* Moon = crescent via overlapping circle */}
+                  <circle cx="158" cy="24" r="9" fill="#CFD8DC" opacity="0.9" />
+                  {/* Moon glow */}
+                  <circle cx="158" cy="24" r="16" fill="#E8EAF6" opacity="0.06" />
+                </g>
+              )}
+
+              {/* Stars — visible at sunset/twilight/night */}
+              {tod.showStars && [
+                [15,10],[45,5],[75,18],[125,8],[28,40],[180,12],[55,28],[135,32],[95,8],[8,25],[170,42],[85,15]
               ].map(([x,y], i) => (
-                <circle key={`ns${i}`} cx={x} cy={y} r={0.5+(i%3)*0.3} fill="white"
+                <circle key={`ns${i}`} cx={x} cy={y} r={0.5+(i%3)*0.4}
+                  fill={i%5===0 ? '#ffe0b2' : 'white'}
                   style={{ animation: `twinkle ${1+i*0.2}s ease-in-out infinite ${i*0.15}s` }} />
               ))}
 
