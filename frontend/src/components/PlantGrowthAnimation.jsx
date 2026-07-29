@@ -34,6 +34,7 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
   const rootProgress  = day >= 2 ? Math.min((day - 1) / 8, 1) : 0;
   const sproutVisible = day >= 3;
   const stemH         = sproutVisible ? Math.min((day - 2) * 9, 65) : 0;
+  const stemBelow     = day >= 2 ? Math.min((day - 1) * 5, 20) : 0;
   const stemW         = 2 + Math.min(p * 4, 4);
   const leafCount     = day >= 5 ? Math.min(day - 4, 10) : 0;
   const showTree      = day >= 12;
