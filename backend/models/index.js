@@ -255,33 +255,41 @@ async function createWithdrawalRequest(userId, amount, bankName, accountNo, ifsc
   return res.insertId;
 }
 
-async function depositUserWallet(userId, amount, paymentMethod = 'UPI') {
+async function depositUserWallet(userId, amount, paymentMethod = 'UPI', target = 'available_cash') {
   let portfolio = await getPortfolioByUserId(userId);
+  const isAvailableCashTarget = target === 'available_cash';
+
   if (!portfolio) {
-    await updatePortfolio(userId, 118930 + amount, 116510, 18920, { available_cash: 2420 + amount });
+    const initTotal = 118930 + amount;
+    const initAvailable = isAvailableCashTarget ? (2420 + amount) : 2420;
+    const initInvested = !isAvailableCashTarget ? (116510 + amount) : 116510;
+    await updatePortfolio(userId, initTotal, initInvested, 18920, { available_cash: initAvailable });
   } else {
     const currentTotal = parseFloat(portfolio.total_value || 118930);
     const currentAvailable = parseFloat(portfolio.available_cash || 2420);
     const currentInvested = parseFloat(portfolio.invested_amount || 116510);
 
     const newTotalVal = currentTotal + amount;
-    const newAvailable = currentAvailable + amount;
+    const newAvailable = isAvailableCashTarget ? (currentAvailable + amount) : currentAvailable;
+    const newInvested = !isAvailableCashTarget ? (currentInvested + amount) : currentInvested;
 
-    await updatePortfolio(userId, newTotalVal, currentInvested, portfolio.total_returns || 18920, {
+    await updatePortfolio(userId, newTotalVal, newInvested, portfolio.total_returns || 18920, {
       available_cash: newAvailable
     });
   }
 
   const updatedPortfolio = await getPortfolioByUserId(userId);
+  const targetLabel = isAvailableCashTarget ? 'Available Cash' : 'Total Wallet Balance';
 
   // Log deposit transaction
-  await createTransaction(userId, 'CREDIT', amount, `Added Money via ${paymentMethod}`, 'COMPLETED');
+  await createTransaction(userId, 'CREDIT', amount, `+ Added ₹${amount.toLocaleString('en-IN')} to ${targetLabel} via ${paymentMethod}`, 'COMPLETED');
 
   return {
     deposited: true,
     amount: amount,
-    new_total_value: updatedPortfolio ? parseFloat(updatedPortfolio.total_value) : 118930 + amount,
-    new_available_cash: updatedPortfolio ? parseFloat(updatedPortfolio.available_cash) : 2420 + amount
+    target: target,
+    new_total_value: updatedPortfolio ? parseFloat(updatedPortfolio.total_value) : (118930 + amount),
+    new_available_cash: updatedPortfolio ? parseFloat(updatedPortfolio.available_cash) : (2420 + (isAvailableCashTarget ? amount : 0))
   };
 }
 

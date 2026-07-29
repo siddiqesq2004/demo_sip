@@ -62,13 +62,12 @@ export default function AddMoneyModal({ isOpen, onClose, onSuccess }) {
         payment_method: method
       });
 
-      setSuccess(true);
       if (onSuccess) onSuccess(num, target, method);
+      handleResetAndClose();
     } catch (err) {
       console.error('Deposit error:', err);
-      // Demo fallback success so UI updates dynamically
-      setSuccess(true);
       if (onSuccess) onSuccess(num, target, method);
+      handleResetAndClose();
     } finally {
       setLoading(false);
     }
