@@ -1,433 +1,679 @@
 import React, { useMemo } from 'react';
 
 /**
- * PlantGrowthAnimation — High-fidelity, artistic dynamic SVG renderer.
- * Features 4 distinct visual phases with cinematic camera transitions:
+ * PlantGrowthAnimation — Dynamic camera zoom SVG.
  *
- * Phase 1 (Days 1-5): Underground seed & sprout breaking topsoil with organic roots.
- * Phase 2 (Days 6-15): Thick wooden trunk tree growing layered canopy & golden fruits.
- * Phase 3 (Days 16-21): Panoramic lush forest landscape with depth, hills, and pine layers.
- * Phase 4 (Day 22): Majestic 3D Evergreen Planet floating in deep outer space with atmosphere & clouds.
+ * Days 0:     Empty soil — "Invest to plant your first seed"
+ * Days 1-3:   Zoomed in tight on seed underground
+ * Days 4-7:   Sprout breaking through soil, first leaves
+ * Days 8-12:  Full plant with many leaves
+ * Days 13-17: PROPER TREE — thick trunk, branching canopy, golden fruits
+ * Days 18-21: DENSE FOREST — camera zooms way out, many layered trees
+ * Day 22:     OUTER SPACE — realistic Earth covered in green
  */
 const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
-  const p = Math.min(Math.max(day, 0) / totalDays, 1); // 0 -> 1
+  const p = Math.min(day / totalDays, 1);
+  const showWorld = day >= 22;
 
-  // Determine active visual mode based on day
-  const isSeedPhase = day <= 5;
-  const isTreePhase = day >= 6 && day <= 15;
-  const isForestPhase = day >= 16 && day <= 21;
-  const isWorldPhase = day >= 22;
+  /* ───── CAMERA ───── */
+  const getCamera = (d) => {
+    if (d <= 0) return { s: 1.9, tx: -90, ty: -130 };
+    if (d <= 3) return { s: 2.2, tx: -120, ty: -155 };
+    if (d <= 5) return { s: 1.7, tx: -70, ty: -105 };
+    if (d <= 8) return { s: 1.35, tx: -35, ty: -55 };
+    if (d <= 12) return { s: 1.1, tx: -10, ty: -18 };
+    if (d <= 17) return { s: 0.95, tx: 5, ty: 8 };
+    return { s: 0.6, tx: 40, ty: 50 };
+  };
+  const cam = getCamera(day);
 
-  // Camera scale and position for smooth zoom effect across stages
-  const getCamTransform = () => {
-    if (day <= 0) return 'scale(2.2) translate(0px, -20px)';
-    if (day <= 3) return 'scale(2.4) translate(0px, -25px)';
-    if (day <= 5) return 'scale(1.8) translate(0px, -15px)';
-    if (day <= 10) return 'scale(1.2) translate(0px, -5px)';
-    if (day <= 15) return 'scale(1.0) translate(0px, 0px)';
-    if (day <= 21) return 'scale(0.85) translate(0px, 10px)';
-    return 'scale(1.0) translate(0px, 0px)'; // World mode fills viewport
+  const GY = 130;
+
+  /* ───── DERIVED ───── */
+  const showSeed      = day >= 1 && day <= 6;
+  const seedCracked   = day >= 2;
+  const seedY         = GY + 22;
+  const rootCount     = day >= 2 ? Math.min(day - 1, 7) : 0;
+  const rootMaxLen    = Math.min((day - 1) * 8, 45);
+  const sproutVisible = day >= 3;
+  const stemH         = sproutVisible ? Math.min((day - 2) * 12, 95) : 0;
+  const stemBelow     = day >= 2 ? Math.min((day - 1) * 5, 20) : 0;
+  const stemW         = 2 + Math.min(p * 5, 5);
+  const leafCount     = day >= 4 ? Math.min(day - 3, 12) : 0;
+  const showTree      = day >= 11;
+  const treeGrowth    = showTree ? Math.min((day - 10) / 7, 1) : 0;
+  const fruitCount    = day >= 14 ? Math.min(day - 13, 10) : 0;
+  const showForest    = day >= 17;
+  const forestGrowth  = showForest ? Math.min((day - 16) / 5, 1) : 0;
+  const sunR          = day >= 3 ? 5 + Math.min(day - 2, 12) : 0;
+  const stemTopY      = GY - stemH;
+
+  /* ───── ROOTS ───── */
+  const roots = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < rootCount; i++) {
+      const spread = rootCount > 1 ? -35 + (i / (rootCount - 1)) * 70 : 0;
+      const len = rootMaxLen * (0.55 + Math.random() * 0.45);
+      arr.push({ angle: spread, len, delay: i * 0.12 });
+    }
+    return arr;
+  }, [rootCount, rootMaxLen]);
+
+  /* ───── LEAVES ───── */
+  const leaves = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < leafCount; i++) {
+      const frac = 0.15 + (i / Math.max(leafCount, 1)) * 0.75;
+      const y = GY - stemH * frac;
+      const side = i % 2 === 0 ? -1 : 1;
+      const sz = 5 + Math.min(p * 12, 12);
+      arr.push({ y, side, sz, delay: i * 0.1 });
+    }
+    return arr;
+  }, [leafCount, stemH, p]);
+
+  /* ───── SPACE STARS ───── */
+  const spaceStars = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < 80; i++) {
+      arr.push({
+        x: Math.random() * 200,
+        y: Math.random() * 200,
+        r: 0.2 + Math.random() * 1.0,
+        delay: Math.random() * 3,
+        dur: 1.5 + Math.random() * 2.5,
+      });
+    }
+    return arr;
+  }, []);
+
+  /* ═══════ TREE CANOPY — multi-circle organic shape ═══════ */
+  const renderTreeCanopy = (cx, baseY, scale, opacity = 1) => {
+    const s = scale;
+    const trunkH = 55 * s;
+    const trunkWBase = 8 * s;
+    const trunkWTop = 4 * s;
+    const ty = baseY;
+
+    // Canopy blobs — multiple overlapping circles for organic look
+    const canopyBlobs = [
+      { dx: 0,      dy: -52, r: 22 },  // top center
+      { dx: -16,    dy: -42, r: 18 },  // left
+      { dx: 16,     dy: -42, r: 18 },  // right
+      { dx: -10,    dy: -55, r: 14 },  // top-left
+      { dx: 10,     dy: -55, r: 14 },  // top-right
+      { dx: 0,      dy: -38, r: 16 },  // bottom center
+      { dx: -22,    dy: -48, r: 12 },  // far left
+      { dx: 22,     dy: -48, r: 12 },  // far right
+    ];
+
+    return (
+      <g opacity={opacity}>
+        {/* Shadow under tree */}
+        <ellipse cx={cx} cy={ty + 2} rx={20 * s} ry={4 * s} fill="#1a3a1a" opacity="0.3" />
+
+        {/* Trunk — tapered trapezoid */}
+        <path
+          d={`M${cx - trunkWBase},${ty} L${cx - trunkWTop},${ty - trunkH} L${cx + trunkWTop},${ty - trunkH} L${cx + trunkWBase},${ty}Z`}
+          fill="#5D4037"
+        />
+        {/* Trunk texture lines */}
+        <line x1={cx - 1} y1={ty} x2={cx - 1} y2={ty - trunkH} stroke="#4E342E" strokeWidth={0.8 * s} opacity="0.4" />
+        <line x1={cx + 2} y1={ty - 10 * s} x2={cx + 2} y2={ty - trunkH + 5 * s} stroke="#6D4C41" strokeWidth={0.5 * s} opacity="0.3" />
+
+        {/* Branches extending from trunk */}
+        <line x1={cx} y1={ty - trunkH * 0.6} x2={cx - 18 * s} y2={ty - trunkH * 0.8}
+          stroke="#5D4037" strokeWidth={2.5 * s} strokeLinecap="round" />
+        <line x1={cx} y1={ty - trunkH * 0.7} x2={cx + 16 * s} y2={ty - trunkH * 0.85}
+          stroke="#5D4037" strokeWidth={2 * s} strokeLinecap="round" />
+        <line x1={cx} y1={ty - trunkH * 0.5} x2={cx - 12 * s} y2={ty - trunkH * 0.65}
+          stroke="#5D4037" strokeWidth={2 * s} strokeLinecap="round" />
+
+        {/* Canopy — overlapping green circles */}
+        {canopyBlobs.map((b, i) => (
+          <circle key={`cb${i}`}
+            cx={cx + b.dx * s} cy={ty - trunkH + b.dy * s + 15 * s}
+            r={b.r * s}
+            fill={['#2E7D32','#388E3C','#43A047','#4CAF50','#2E7D32','#388E3C','#1B5E20','#33691E'][i]}
+            opacity={0.9 - i * 0.02}
+          />
+        ))}
+
+        {/* Canopy highlights */}
+        <circle cx={cx - 8 * s} cy={ty - trunkH - 40 * s} r={8 * s} fill="#66BB6A" opacity="0.25" />
+        <circle cx={cx + 5 * s} cy={ty - trunkH - 50 * s} r={5 * s} fill="#81C784" opacity="0.2" />
+      </g>
+    );
+  };
+
+  /* ═══════ FOREST TREE (simpler, for background) ═══════ */
+  const renderForestTree = (cx, baseY, scale, shade = 0, opacity = 0.85) => {
+    const s = scale;
+    const h = 40 * s;
+    const tw = 3 * s;
+    const colors = [
+      ['#1B5E20','#2E7D32','#388E3C'],
+      ['#2E7D32','#388E3C','#43A047'],
+      ['#33691E','#2E7D32','#1B5E20'],
+    ][shade % 3];
+
+    return (
+      <g opacity={opacity}>
+        {/* Trunk */}
+        <path d={`M${cx - tw},${baseY} L${cx - tw * 0.5},${baseY - h} L${cx + tw * 0.5},${baseY - h} L${cx + tw},${baseY}Z`}
+          fill="#5D4037" />
+        {/* Canopy — 3 overlapping circles */}
+        <circle cx={cx} cy={baseY - h - 8 * s} r={12 * s} fill={colors[0]} />
+        <circle cx={cx - 6 * s} cy={baseY - h - 4 * s} r={10 * s} fill={colors[1]} />
+        <circle cx={cx + 6 * s} cy={baseY - h - 4 * s} r={10 * s} fill={colors[2]} />
+        <circle cx={cx} cy={baseY - h - 14 * s} r={7 * s} fill={colors[1]} opacity="0.8" />
+      </g>
+    );
   };
 
   return (
-    <div className="relative w-full flex items-center justify-center overflow-hidden rounded-2xl" style={{ minHeight: 260 }}>
-      <svg
-        viewBox="0 0 400 320"
-        className="w-full h-auto select-none"
-        style={{ maxWidth: 360, maxHeight: 310 }}
-        xmlns="http://www.w3.org/2000/svg"
-      >
+    <div className="relative w-full flex items-center justify-center overflow-hidden" style={{ minHeight: 240 }}>
+      <svg viewBox="0 0 200 200" className="w-full h-auto"
+        style={{ maxWidth: 310, maxHeight: 290 }} xmlns="http://www.w3.org/2000/svg">
         <defs>
-          {/* Sky Gradients */}
-          <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3897d8" />
-            <stop offset="60%" stopColor="#76c4ef" />
-            <stop offset="100%" stopColor="#bce3f7" />
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={day >= 18 ? '#0a1a30' : '#3a9fd8'} />
+            <stop offset="100%" stopColor={day >= 18 ? '#163832' : '#87CEEB'} />
           </linearGradient>
-
-          <linearGradient id="skySunset" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a3b5d" />
-            <stop offset="40%" stopColor="#2e6b72" />
-            <stop offset="80%" stopColor="#4a8f6d" />
-            <stop offset="100%" stopColor="#68ad77" />
+          <linearGradient id="soilG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#6D4C41" />
+            <stop offset="50%" stopColor="#4E342E" />
+            <stop offset="100%" stopColor="#3E2723" />
           </linearGradient>
-
-          <radialGradient id="spaceBg" cx="50%" cy="50%" r="75%">
-            <stop offset="0%" stopColor="#0b1329" />
-            <stop offset="60%" stopColor="#050914" />
-            <stop offset="100%" stopColor="#020307" />
-          </radialGradient>
-
-          {/* Soil Gradients */}
-          <linearGradient id="topSoil" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4d8c3f" />
-            <stop offset="15%" stopColor="#5c3a21" />
-            <stop offset="100%" stopColor="#382112" />
+          <linearGradient id="stemG" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#5D4037" />
+            <stop offset="30%" stopColor="#33691E" />
+            <stop offset="100%" stopColor="#66BB6A" />
           </linearGradient>
-
-          <linearGradient id="deepSoil" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5a3820" />
-            <stop offset="50%" stopColor="#3d2313" />
-            <stop offset="100%" stopColor="#241309" />
+          <radialGradient id="sunG" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFF9C4" />
+            <stop offset="40%" stopColor="#FFD54F" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#FFB300" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="grassG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#66BB6A" />
+            <stop offset="100%" stopColor="#2E7D32" />
           </linearGradient>
-
-          {/* Trunk & Bark Gradient */}
-          <linearGradient id="barkGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#3e2415" />
-            <stop offset="35%" stopColor="#6e452a" />
-            <stop offset="70%" stopColor="#8a5735" />
-            <stop offset="100%" stopColor="#3a2012" />
-          </linearGradient>
-
-          <linearGradient id="barkBranch" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7a4a2b" />
-            <stop offset="100%" stopColor="#422614" />
-          </linearGradient>
-
-          {/* Foliage Gradients */}
-          <radialGradient id="foliageDark" cx="40%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="#47ad54" />
-            <stop offset="50%" stopColor="#1e7328" />
-            <stop offset="100%" stopColor="#0d4013" />
+          {/* Earth gradients */}
+          <radialGradient id="earthOcean" cx="40%" cy="38%" r="55%">
+            <stop offset="0%" stopColor="#42A5F5" />
+            <stop offset="50%" stopColor="#1E88E5" />
+            <stop offset="100%" stopColor="#0D47A1" />
           </radialGradient>
-
-          <radialGradient id="foliageBright" cx="35%" cy="25%" r="65%">
-            <stop offset="0%" stopColor="#7ee388" />
-            <stop offset="55%" stopColor="#2ebb40" />
-            <stop offset="100%" stopColor="#13661f" />
+          <radialGradient id="earthAtmo" cx="50%" cy="50%" r="50%">
+            <stop offset="82%" stopColor="transparent" />
+            <stop offset="92%" stopColor="#4FC3F7" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#81D4FA" stopOpacity="0.05" />
           </radialGradient>
-
-          {/* Golden Fruit / Coin Gradient */}
-          <radialGradient id="goldFruit" cx="35%" cy="30%" r="65%">
-            <stop offset="0%" stopColor="#fff7a6" />
-            <stop offset="45%" stopColor="#ffd23c" />
-            <stop offset="85%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#b45309" />
-          </radialGradient>
-
-          {/* 3D Planet Earth Gradients */}
-          <radialGradient id="planetOcean" cx="35%" cy="35%" r="65%">
-            <stop offset="0%" stopColor="#2575fc" />
-            <stop offset="50%" stopColor="#1a4b9c" />
-            <stop offset="85%" stopColor="#0d2b68" />
-            <stop offset="100%" stopColor="#051336" />
-          </radialGradient>
-
-          <radialGradient id="planetLand" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="#52d66b" />
-            <stop offset="40%" stopColor="#1b9e3a" />
-            <stop offset="80%" stopColor="#0e5e21" />
-            <stop offset="100%" stopColor="#063812" />
-          </radialGradient>
-
-          <radialGradient id="atmoHalo" cx="50%" cy="50%" r="50%">
-            <stop offset="70%" stopColor="transparent" />
-            <stop offset="88%" stopColor="#38ef7d" stopOpacity="0.35" />
-            <stop offset="97%" stopColor="#11998e" stopOpacity="0.6" />
+          <radialGradient id="earthShine" cx="30%" cy="30%" r="60%">
+            <stop offset="0%" stopColor="white" stopOpacity="0.08" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
-
-          {/* Glow Filters */}
-          <filter id="glowGold" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-
-          <filter id="planetGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
+          <radialGradient id="spaceG" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="#0a0e1a" />
+            <stop offset="100%" stopColor="#020408" />
+          </radialGradient>
         </defs>
 
-        {/* ========================================================================= */}
-        {/* MODE 4: PLANET EARTH IN OUTER SPACE (DAY 22+)                             */}
-        {/* ========================================================================= */}
-        {isWorldPhase ? (
-          <g className="animate-fadeIn">
-            {/* Deep Space Background */}
-            <rect width="400" height="320" fill="url(#spaceBg)" />
-
-            {/* Nebula Dust Clouds */}
-            <path d="M 20 50 Q 120 10 220 70 T 380 40" fill="none" stroke="#6366f1" strokeWidth="40" opacity="0.08" filter="blur(20px)" />
-            <path d="M 50 240 Q 180 290 310 220 T 390 280" fill="none" stroke="#10b981" strokeWidth="50" opacity="0.1" filter="blur(25px)" />
-
-            {/* Twinkling Stars */}
-            {[
-              [30,40,1.5],[80,20,2],[140,50,1],[190,25,2.5],[260,35,1.2],[310,15,2],[370,50,1],
-              [20,130,1],[60,170,2],[350,140,1.8],[380,210,1],[40,260,2.2],[110,290,1],[300,280,2],
-              [150,270,1.5],[230,300,1],[340,90,2.5],[90,110,1.2]
-            ].map(([cx, cy, r], i) => (
-              <circle
-                key={`star-${i}`}
-                cx={cx} cy={cy} r={r}
-                fill={i % 3 === 0 ? '#fde047' : i % 2 === 0 ? '#67e8f9' : '#ffffff'}
-                opacity={0.4 + (i % 5) * 0.12}
-                className="animate-pulse"
-                style={{ animationDuration: `${1.5 + (i % 4) * 0.7}s` }}
-              />
-            ))}
-
-            {/* Shooting Star */}
-            <line x1="280" y1="30" x2="340" y2="60" stroke="url(#goldFruit)" strokeWidth="1.5" strokeLinecap="round" opacity="0.7">
-              <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" />
-            </line>
-
-            {/* Atmosphere Halo Glow */}
-            <circle cx="200" cy="155" r="105" fill="url(#atmoHalo)" filter="url(#planetGlow)" />
-
-            {/* Main Planet Earth Sphere */}
-            <circle cx="200" cy="155" r="92" fill="url(#planetOcean)" />
-
-            {/* Evergreen Continents (Rich Green Landmasses) */}
-            <g>
-              {/* North America / Europe Continent */}
-              <path d="M 140 110 C 150 90, 180 85, 210 95 C 230 105, 250 90, 260 110 C 270 130, 240 145, 210 140 C 180 135, 160 150, 140 130 Z" fill="url(#planetLand)" />
-              {/* South America / Africa Continent */}
-              <path d="M 160 150 C 180 145, 210 155, 225 175 C 235 195, 215 220, 195 225 C 175 220, 165 195, 155 175 Z" fill="url(#planetLand)" />
-              {/* Asia / Islands */}
-              <path d="M 220 120 C 240 115, 265 125, 275 145 C 280 160, 260 170, 245 160 Z" fill="url(#planetLand)" />
-              <circle cx="145" cy="175" r="7" fill="url(#planetLand)" />
-              <circle cx="265" cy="175" r="9" fill="url(#planetLand)" />
-            </g>
-
-            {/* Micro Evergreen Forest Textures on Continents */}
-            {[
-              [175,105],[195,100],[215,110],[235,115],[180,125],[200,120],[220,130],
-              [175,165],[190,180],[205,195],[185,210],[240,135],[255,145]
-            ].map(([x,y], i) => (
-              <g key={`tree-micro-${i}`} transform={`translate(${x}, ${y}) scale(0.4)`}>
-                <polygon points="0,-12 -7,0 7,0" fill="#145222" />
-                <polygon points="0,-8 -5,3 5,3" fill="#228b3c" />
-              </g>
-            ))}
-
-            {/* Atmospheric Cloud Swirls */}
-            <path d="M 130 125 Q 160 115 190 130 T 250 120" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.35" strokeLinecap="round" />
-            <path d="M 150 170 Q 180 185 210 175 T 260 185" fill="none" stroke="#ffffff" strokeWidth="5" opacity="0.3" strokeLinecap="round" />
-            <ellipse cx="200" cy="72" rx="40" ry="8" fill="#ffffff" opacity="0.4" />
-
-            {/* Orbiting Golden Wealth Ring / Satellites */}
-            <ellipse cx="200" cy="155" rx="125" ry="35" fill="none" stroke="url(#goldFruit)" strokeWidth="1.5" strokeDasharray="6 8" opacity="0.8" transform="rotate(-12 200 155)" />
-            <circle cx="95" cy="140" r="4" fill="url(#goldFruit)" filter="url(#glowGold)" />
-            <circle cx="290" cy="170" r="5" fill="url(#goldFruit)" filter="url(#glowGold)" />
-
-            {/* Center Celebration Banner Text */}
-            <g transform="translate(200, 290)">
-              <rect x="-95" y="-14" width="190" height="24" rx="12" fill="#062e23" stroke="#10b981" strokeWidth="1" opacity="0.9" />
-              <text textAnchor="middle" y="2" fill="#34d399" fontSize="11" fontWeight="800" letterSpacing="0.5">
-                🌍 EVERGREEN EMPIRE COMPLETE
-              </text>
-            </g>
-          </g>
-        ) : (
-          /* ========================================================================= */
-          /* MODES 1, 2, 3: GROUND & SKY WITH DYNAMIC CAMERA ZOOM                      */
-          /* ========================================================================= */
+        {showWorld ? (
+          /* ═══════════════════════════════════════
+             DAY 22: OUTER SPACE — GREEN EARTH
+             ═══════════════════════════════════════ */
           <g>
-            {/* Dynamic Sky Background */}
-            <rect width="400" height="320" fill={isForestPhase ? 'url(#skySunset)' : 'url(#skyDay)'} />
+            {/* Deep space */}
+            <rect x="0" y="0" width="200" height="200" fill="url(#spaceG)" rx="12" />
 
-            {/* Sun with Rays */}
-            <g transform="translate(320, 60)">
-              <circle r="35" fill="#fde047" opacity="0.25" />
-              <circle r="22" fill="#facc15" opacity="0.6" filter="url(#glowGold)" />
-              <circle r="14" fill="#ffffff" />
+            {/* Stars */}
+            {spaceStars.map((s, i) => (
+              <circle key={`ss${i}`} cx={s.x} cy={s.y} r={s.r}
+                fill={i%7===0 ? '#ffe0b2' : i%11===0 ? '#bbdefb' : 'white'}
+                opacity={0.2 + (i%5)*0.12}
+                style={{ animation: `twinkle ${s.dur}s ${s.delay}s ease-in-out infinite` }} />
+            ))}
+
+            {/* Distant nebula */}
+            <ellipse cx="30" cy="25" rx="18" ry="6" fill="#7C4DFF" opacity="0.04" transform="rotate(-15 30 25)" />
+            <ellipse cx="175" cy="170" rx="14" ry="5" fill="#00BCD4" opacity="0.03" transform="rotate(25 175 170)" />
+
+            {/* Earth */}
+            <g style={{ animation: 'earthAppear 2s ease-out both' }}>
+              {/* Atmosphere outer glow */}
+              <circle cx="100" cy="96" r="80" fill="url(#earthAtmo)" />
+              <circle cx="100" cy="96" r="74" fill="none" stroke="#4FC3F7" strokeWidth="0.6" opacity="0.1"
+                style={{ animation: 'sunPulse 6s infinite' }} />
+
+              {/* Ocean base */}
+              <circle cx="100" cy="96" r="68" fill="url(#earthOcean)" />
+
+              {/* Continents — large green landmasses (Earth is MOSTLY green/forest) */}
+              {/* North America */}
+              <path d="M65,62 Q58,68 60,78 Q62,85 70,88 Q78,86 82,80 Q85,72 80,65 Q75,60 65,62Z"
+                fill="#2E7D32" opacity="0.9" />
+              {/* South America */}
+              <path d="M72,95 Q68,102 70,115 Q73,125 78,128 Q82,125 83,118 Q84,108 80,98 Q76,93 72,95Z"
+                fill="#388E3C" opacity="0.85" />
+              {/* Europe + Africa */}
+              <path d="M100,60 Q96,65 98,72 Q100,78 104,75 Q106,70 105,63 Q103,58 100,60Z"
+                fill="#43A047" opacity="0.8" />
+              <path d="M98,82 Q94,90 96,105 Q100,118 106,122 Q112,118 113,108 Q112,95 108,88 Q104,82 98,82Z"
+                fill="#2E7D32" opacity="0.88" />
+              {/* Asia */}
+              <path d="M110,55 Q105,58 108,65 Q112,72 120,75 Q130,78 138,74 Q142,68 138,62 Q132,55 124,54 Q116,53 110,55Z"
+                fill="#33691E" opacity="0.85" />
+              {/* India */}
+              <path d="M118,78 Q115,84 116,92 Q118,97 122,95 Q124,90 123,83 Q121,78 118,78Z"
+                fill="#4CAF50" opacity="0.8" />
+              {/* Australia */}
+              <path d="M135,108 Q130,112 132,120 Q136,125 142,123 Q146,118 144,112 Q140,108 135,108Z"
+                fill="#388E3C" opacity="0.82" />
+              {/* Additional forests everywhere — making it VERY green */}
+              <ellipse cx="85" cy="70" rx="6" ry="4" fill="#66BB6A" opacity="0.5" />
+              <ellipse cx="115" cy="62" rx="5" ry="3" fill="#81C784" opacity="0.4" />
+              <ellipse cx="128" cy="85" rx="4" ry="6" fill="#4CAF50" opacity="0.45" />
+              <ellipse cx="90" cy="110" rx="5" ry="4" fill="#A5D6A7" opacity="0.35" />
+
+              {/* Tiny forest texture dots on land */}
+              {Array.from({ length: 30 }).map((_, i) => {
+                const a = (i / 30) * Math.PI * 2 + 0.3;
+                const d = 20 + (i * 13) % 40;
+                const tx = 100 + Math.cos(a) * d;
+                const ty = 96 + Math.sin(a) * d * 0.9;
+                const dist = Math.sqrt((tx-100)**2 + (ty-96)**2);
+                if (dist > 63) return null;
+                return <circle key={`td${i}`} cx={tx} cy={ty} r={0.8 + (i%3)*0.4}
+                  fill={['#1B5E20','#2E7D32','#388E3C','#43A047'][i%4]} opacity={0.5 + (i%3)*0.1} />;
+              })}
+
+              {/* Ice caps */}
+              <ellipse cx="100" cy="32" rx="18" ry="6" fill="white" opacity="0.3" />
+              <ellipse cx="100" cy="161" rx="14" ry="4" fill="white" opacity="0.2" />
+
+              {/* Cloud bands */}
+              <ellipse cx="80" cy="72" rx="16" ry="2.5" fill="white" opacity="0.14"
+                style={{ animation: 'cloudDrift 22s linear infinite' }} />
+              <ellipse cx="120" cy="100" rx="12" ry="2" fill="white" opacity="0.12"
+                style={{ animation: 'cloudDrift 28s 6s linear infinite' }} />
+              <ellipse cx="95" cy="118" rx="10" ry="1.8" fill="white" opacity="0.1" />
+
+              {/* Surface light reflection (sun glint) */}
+              <circle cx="100" cy="96" r="68" fill="url(#earthShine)" />
+
+              {/* Terminator shadow (dark side of planet) */}
+              <ellipse cx="140" cy="96" rx="55" ry="68" fill="black" opacity="0.08" />
             </g>
 
-            {/* Clouds drifting */}
-            <g opacity="0.7">
-              <path d="M 40 60 Q 55 45 75 55 Q 90 40 110 55 Q 125 60 110 75 Q 40 80 40 60 Z" fill="#ffffff" opacity="0.85" />
-              <path d="M 220 85 Q 235 70 255 80 Q 270 65 290 80 Q 305 85 290 100 Q 220 105 220 85 Z" fill="#ffffff" opacity="0.65" />
-            </g>
+            {/* Orbiting particles */}
+            {[0,45,90,135,180,225,270,315].map((a, i) => {
+              const rad = (a * Math.PI) / 180;
+              return (
+                <circle key={`op${i}`}
+                  cx={100 + Math.cos(rad) * 78} cy={96 + Math.sin(rad) * 76}
+                  r={0.8 + (i%3)*0.5}
+                  fill={i%2===0 ? '#FFD54F' : '#69F0AE'}
+                  style={{ animation: `twinkle ${0.6+i*0.12}s infinite ease-in-out ${i*0.1}s` }} />
+              );
+            })}
 
-            {/* Distant Mountains (Forest Phase) */}
-            {isForestPhase && (
-              <g opacity="0.6">
-                <polygon points="-20,200 60,110 140,200" fill="#1e4d3b" />
-                <polygon points="80,200 170,90 260,200" fill="#163e30" />
-                <polygon points="200,200 290,105 380,200" fill="#1a4636" />
-                <polygon points="290,200 360,120 430,200" fill="#0f3024" />
-              </g>
-            )}
+            {/* Shooting star */}
+            <line x1="20" y1="10" x2="42" y2="20" stroke="white" strokeWidth="0.7" opacity="0"
+              style={{ animation: 'shootingStar 5s 2s infinite' }} />
 
-            {/* Midground Rolling Hills (Forest & Tree Phase) */}
-            {(isTreePhase || isForestPhase) && (
-              <g>
-                <path d="M -20 210 Q 90 165 200 195 T 420 180 L 420 240 L -20 240 Z" fill="#2d7a46" opacity="0.7" />
-                <path d="M -20 220 Q 120 185 240 210 T 420 195 L 420 250 L -20 250 Z" fill="#236638" />
-              </g>
-            )}
+            {/* Label */}
+            <text x="100" y="186" textAnchor="middle" fill="#69F0AE" fontSize="6" fontWeight="700" opacity="0.5"
+              style={{ animation: 'fadeIn 2s 1s both' }}>
+              🌍 Evergreen Planet
+            </text>
+          </g>
 
-            {/* Background Forest Trees Array (Forest Phase) */}
-            {isForestPhase && (
-              <g>
-                {[
-                  [20,185,0.7],[50,175,0.9],[80,180,0.8],[120,170,1.1],[150,175,0.85],
-                  [250,170,1.0],[280,180,0.75],[320,165,1.2],[350,175,0.9],[380,185,0.7]
-                ].map(([x, y, scale], i) => (
-                  <g key={`bg-pine-${i}`} transform={`translate(${x}, ${y}) scale(${scale})`}>
-                    <rect x="-3" y="0" width="6" height="25" fill="#3a2012" rx="1" />
-                    <polygon points="0,-45 -18,-15 18,-15" fill="#145222" />
-                    <polygon points="0,-35 -15,-8 15,-8" fill="#1e7328" />
-                    <polygon points="0,-25 -12,0 12,0" fill="#2ebb40" />
-                  </g>
-                ))}
-              </g>
-            )}
+        ) : (
+          /* ═══════════════════════════════════════
+             DAYS 0-21: GROUND SCENE
+             ═══════════════════════════════════════ */
+          <>
+            <rect x="-200" y="-200" width="600" height="600"
+              fill={day >= 18 ? '#0a1a30' : '#3a9fd8'} />
 
-            {/* GROUND & SOIL CROSS-SECTION */}
-            <g transform="translate(0, 195)">
-              {/* Grass surface line */}
-              <rect x="-10" y="0" width="420" height="12" fill="#47ad54" rx="3" />
+            <g style={{
+              transform: `scale(${cam.s}) translate(${cam.tx}px, ${cam.ty}px)`,
+              transition: 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              transformOrigin: '100px 130px',
+            }}>
 
-              {/* Grass Tufts */}
-              {[15, 45, 85, 135, 175, 225, 275, 315, 365].map((gx, i) => (
-                <path key={`grass-${i}`} d={`M ${gx} 2 Q ${gx - 4} -8 ${gx - 8} -12 M ${gx} 2 Q ${gx + 2} -10 ${gx + 5} -14 M ${gx} 2 Q ${gx + 6} -6 ${gx + 10} -10`} stroke="#7ee388" strokeWidth="1.8" strokeLinecap="round" />
+              {/* Sky */}
+              <rect x="-150" y="-250" width="500" height={GY + 250} fill="url(#skyG)" />
+
+              {/* Clouds */}
+              {day >= 4 && day <= 21 && (
+                <g opacity={day >= 18 ? 0.15 : 0.35}>
+                  <ellipse cx="40" cy="40" rx="20" ry="6" fill="white"
+                    style={{ animation: 'cloudDrift 14s linear infinite' }} />
+                  <ellipse cx="46" cy="37" rx="12" ry="5" fill="white" />
+                  <ellipse cx="155" cy="28" rx="16" ry="5" fill="white"
+                    style={{ animation: 'cloudDrift 18s 4s linear infinite' }} />
+                  <ellipse cx="160" cy="25" rx="10" ry="4" fill="white" />
+                </g>
+              )}
+
+              {/* Sun */}
+              {sunR > 0 && (
+                <g>
+                  <circle cx="168" cy="30" r={sunR + 8} fill="url(#sunG)"
+                    style={{ animation: 'sunPulse 4s ease-in-out infinite' }} />
+                  <circle cx="168" cy="30" r={sunR * 0.45} fill="#FFF9C4" />
+                </g>
+              )}
+
+              {/* Stars for night (days 18-21) */}
+              {day >= 18 && [
+                [15,10],[45,5],[75,18],[125,8],[165,20],[25,35],[180,12],[55,28],[135,32],[95,-5],[-20,15],[210,25]
+              ].map(([x,y], i) => (
+                <circle key={`ns${i}`} cx={x} cy={y} r={0.5 + (i%3)*0.3} fill="white"
+                  style={{ animation: `twinkle ${1+i*0.2}s ease-in-out infinite ${i*0.15}s` }} />
               ))}
 
-              {/* Underground Soil Layer */}
-              <rect x="-10" y="10" width="420" height="125" fill="url(#topSoil)" />
+              {/* ──── BACKGROUND HILLS (forest stage) ──── */}
+              {day >= 16 && (
+                <g style={{ animation: 'fadeIn 1s both' }}>
+                  {/* Far hills */}
+                  <ellipse cx="-20" cy={GY} rx="90" ry="35" fill="#1B5E20" opacity="0.25" />
+                  <ellipse cx="100" cy={GY} rx="110" ry="25" fill="#2E7D32" opacity="0.2" />
+                  <ellipse cx="220" cy={GY} rx="80" ry="30" fill="#1B5E20" opacity="0.22" />
+                </g>
+              )}
 
-              {/* Soil Strata Texture */}
-              <path d="M -10 40 Q 100 55 200 35 T 410 45" fill="none" stroke="#331c0e" strokeWidth="3" opacity="0.4" />
-              <path d="M -10 75 Q 120 60 250 80 T 410 70" fill="none" stroke="#241309" strokeWidth="4" opacity="0.5" />
-
-              {/* Underground Pebbles & Earth Details */}
-              <ellipse cx="60" cy="50" rx="6" ry="3.5" fill="#241309" opacity="0.6" />
-              <ellipse cx="140" cy="80" rx="8" ry="4" fill="#241309" opacity="0.6" />
-              <ellipse cx="280" cy="45" rx="5" ry="3" fill="#241309" opacity="0.6" />
-              <ellipse cx="340" cy="75" rx="7" ry="4" fill="#241309" opacity="0.6" />
-            </g>
-
-            {/* ========================================================================= */}
-            {/* MAIN GROWING PLANT / TREE (TRANSFORMED BY CAMERA ZOOM)                   */}
-            {/* ========================================================================= */}
-            <g style={{ transform: getCamTransform(), transformOrigin: '200px 195px', transition: 'transform 1.2s ease-out' }}>
-
-              {/* --------------------------------------------------------------------- */}
-              {/* PHASE 1: UNDERGROUND SEED & ROOT SYSTEM (DAYS 1 - 5)                   */}
-              {/* --------------------------------------------------------------------- */}
-              {isSeedPhase && (
-                <g transform="translate(200, 195)">
-                  {/* Underground Taproot & Fine Lateral Roots */}
-                  <g className="animate-fadeIn">
-                    <path d="M 0 10 Q -5 30 -12 55 Q -18 75 -25 90" fill="none" stroke="#a37549" strokeWidth="3" strokeLinecap="round" />
-                    <path d="M 0 10 Q 6 35 15 60 Q 22 80 30 95" fill="none" stroke="#a37549" strokeWidth="2.8" strokeLinecap="round" />
-                    <path d="M 0 10 Q 0 45 2 75 Q 4 95 0 110" fill="none" stroke="#c4905d" strokeWidth="2.2" strokeLinecap="round" />
-                    {/* Lateral Hair Roots */}
-                    <path d="M -8 40 Q -20 48 -30 52" fill="none" stroke="#d4a373" strokeWidth="1.2" />
-                    <path d="M 10 45 Q 24 52 35 58" fill="none" stroke="#d4a373" strokeWidth="1.2" />
-                    <path d="M -15 68 Q -28 75 -35 82" fill="none" stroke="#d4a373" strokeWidth="1" />
-                  </g>
-
-                  {/* The Acorn / Seed Underground */}
-                  <g transform="translate(0, 15)">
-                    {/* Seed Shell */}
-                    <ellipse cx="0" cy="0" rx="9" ry="7" fill="#8a5229" stroke="#4a2a12" strokeWidth="1.5" />
-                    <path d="M -6 -2 Q 0 -7 6 -2" fill="#5c3418" />
-
-                    {/* Seed Crack Opening on Day 2+ */}
-                    {day >= 2 && (
-                      <path d="M -2 -4 L 1 0 L -1 4" fill="none" stroke="#fef08a" strokeWidth="1.5" strokeLinecap="round" />
-                    )}
-                  </g>
-
-                  {/* Emerging Sprout Stem breaking topsoil (Day 3+) */}
-                  {day >= 3 && (
-                    <g>
-                      <path d="M 0 15 Q -2 -5 0 -25 Q 2 -45 0 -60" fill="none" stroke="#47ad54" strokeWidth="4" strokeLinecap="round" />
-                      {/* Broken Dirt Bits at Surface */}
-                      <circle cx="-6" cy="0" r="2.5" fill="#5c3a21" />
-                      <circle cx="5" cy="-2" r="3" fill="#5c3a21" />
-
-                      {/* First Sprout Leaves (Day 4+) */}
-                      {day >= 4 && (
-                        <g transform="translate(0, -60)">
-                          <path d="M 0 0 C -15 -10, -20 -25, -5 -25 C 0 -15, 0 0, 0 0 Z" fill="#7ee388" stroke="#1e7328" strokeWidth="1" />
-                          <path d="M 0 0 C 15 -10, 20 -25, 5 -25 C 0 -15, 0 0, 0 0 Z" fill="#47ad54" stroke="#1e7328" strokeWidth="1" />
-                        </g>
-                      )}
+              {/* ──── FOREST TREES ──── */}
+              {showForest && (
+                <g>
+                  {/* Back row (smaller, darker — depth) */}
+                  {[
+                    { x: -60, s: 0.5 }, { x: -30, s: 0.55 }, { x: 0, s: 0.5 },
+                    { x: 30, s: 0.6 }, { x: 60, s: 0.45 },
+                    { x: 140, s: 0.55 }, { x: 170, s: 0.5 }, { x: 200, s: 0.6 },
+                    { x: 230, s: 0.45 }, { x: 260, s: 0.5 },
+                  ].map((t, i) => (
+                    <g key={`bft${i}`} style={{
+                      animation: `treeGrow 0.8s ${0.1 + i * 0.1}s both ease-out`,
+                      transformOrigin: `${t.x}px ${GY - 8}px`,
+                      opacity: Math.min(forestGrowth * 2, 0.55),
+                    }}>
+                      {renderForestTree(t.x, GY - 8, t.s, i, 0.5)}
                     </g>
+                  ))}
+
+                  {/* Mid row */}
+                  {[
+                    { x: -40, s: 0.7 }, { x: -10, s: 0.75 }, { x: 20, s: 0.65 },
+                    { x: 50, s: 0.8 }, { x: 75, s: 0.7 },
+                    { x: 125, s: 0.75 }, { x: 155, s: 0.7 }, { x: 185, s: 0.8 },
+                    { x: 215, s: 0.65 }, { x: 245, s: 0.75 },
+                  ].map((t, i) => (
+                    <g key={`mft${i}`} style={{
+                      animation: `treeGrow 0.9s ${0.3 + i * 0.12}s both ease-out`,
+                      transformOrigin: `${t.x}px ${GY - 3}px`,
+                      opacity: Math.min(forestGrowth * 1.5, 0.7),
+                    }}>
+                      {renderForestTree(t.x, GY - 3, t.s, i + 1, 0.7)}
+                    </g>
+                  ))}
+
+                  {/* Front row (larger, brighter) */}
+                  {[
+                    { x: -50, s: 0.9 }, { x: -20, s: 1.0 }, { x: 15, s: 0.85 },
+                    { x: 45, s: 0.95 }, { x: 70, s: 0.9 },
+                    { x: 130, s: 0.95 }, { x: 160, s: 0.9 }, { x: 190, s: 1.0 },
+                    { x: 220, s: 0.85 }, { x: 250, s: 0.95 },
+                  ].map((t, i) => (
+                    <g key={`fft${i}`} style={{
+                      animation: `treeGrow 1s ${0.5 + i * 0.14}s both ease-out`,
+                      transformOrigin: `${t.x}px ${GY}px`,
+                    }}>
+                      {renderForestTree(t.x, GY, t.s, i + 2, 0.85)}
+                    </g>
+                  ))}
+                </g>
+              )}
+
+              {/* ──── THE MAIN TREE (days 11-17) ──── */}
+              {showTree && !showForest && (
+                <g style={{ animation: 'treeGrow 1.2s both ease-out', transformOrigin: `100px ${GY}px` }}>
+                  {renderTreeCanopy(100, GY, treeGrowth * 0.9 + 0.3)}
+
+                  {/* Golden fruits on the main tree */}
+                  {fruitCount > 0 && (() => {
+                    const trunkH = 55 * (treeGrowth * 0.9 + 0.3);
+                    const fruitPositions = [
+                      { dx: -14, dy: -45 }, { dx: 14, dy: -43 }, { dx: -20, dy: -38 },
+                      { dx: 20, dy: -36 }, { dx: 0, dy: -58 }, { dx: -8, dy: -52 },
+                      { dx: 10, dy: -50 }, { dx: -18, dy: -50 }, { dx: 22, dy: -48 },
+                      { dx: 0, dy: -42 },
+                    ];
+                    return fruitPositions.slice(0, fruitCount).map((f, i) => {
+                      const s = treeGrowth * 0.9 + 0.3;
+                      return (
+                        <g key={`mf${i}`} style={{ animation: `fruitBounce 0.5s ${i * 0.15}s both ease-out` }}>
+                          <circle cx={100 + f.dx * s} cy={GY - trunkH + f.dy * s + 15 * s}
+                            r={3.5 * s} fill="#FFD54F" />
+                          <circle cx={100 + f.dx * s - 1} cy={GY - trunkH + f.dy * s + 14 * s}
+                            r={1.2 * s} fill="#FFF9C4" opacity="0.5" />
+                        </g>
+                      );
+                    });
+                  })()}
+                </g>
+              )}
+
+              {/* Main tree visible even in forest (centered, slightly larger) */}
+              {showForest && (
+                <g style={{ animation: 'fadeIn 0.5s both' }}>
+                  {renderTreeCanopy(100, GY, 1.1)}
+                  {/* Fruits on main tree in forest */}
+                  {[
+                    { dx: -14, dy: -45 }, { dx: 14, dy: -43 }, { dx: -20, dy: -38 },
+                    { dx: 20, dy: -36 }, { dx: 0, dy: -58 }, { dx: -8, dy: -52 },
+                  ].map((f, i) => (
+                    <g key={`ff${i}`} style={{ animation: `fruitBounce 0.4s ${i*0.1}s both ease-out` }}>
+                      <circle cx={100 + f.dx * 1.1} cy={GY - 55*1.1 + f.dy*1.1 + 15*1.1}
+                        r={3.8} fill="#FFD54F" />
+                      <circle cx={100 + f.dx*1.1 - 1} cy={GY - 55*1.1 + f.dy*1.1 + 14*1.1}
+                        r={1.2} fill="#FFF9C4" opacity="0.5" />
+                    </g>
+                  ))}
+                </g>
+              )}
+
+              {/* ──── GRASS STRIP ──── */}
+              <rect x="-150" y={GY - 3} width="500" height="6" fill="url(#grassG)" />
+              {day >= 4 && Array.from({ length: 30 }).map((_, i) => {
+                const gx = -40 + i * 10;
+                const gh = 3 + (i * 7 % 5);
+                return (
+                  <line key={`gr${i}`} x1={gx} y1={GY - 3} x2={gx + (i%2===0?2:-2)} y2={GY - 3 - gh}
+                    stroke="#81C784" strokeWidth="1" strokeLinecap="round"
+                    style={{ animation: `grassSway 2.5s ${i*0.08}s ease-in-out infinite` }} />
+                );
+              })}
+
+              {/* ──── SOIL ──── */}
+              <rect x="-150" y={GY} width="500" height="250" fill="url(#soilG)" />
+              <line x1="-150" y1={GY + 30} x2="350" y2={GY + 30} stroke="#5D4037" strokeWidth="0.5" opacity="0.3" />
+              <line x1="-150" y1={GY + 50} x2="350" y2={GY + 50} stroke="#4E342E" strokeWidth="0.4" opacity="0.2" />
+              {[
+                [35,145,3.5,2],[70,160,2.5,1.8],[130,148,3,2.2],[160,155,2.8,1.5],[55,170,4,2.5],[140,167,3,1.8]
+              ].map(([x,y,rx,ry], i) => (
+                <ellipse key={`pb${i}`} cx={x} cy={y} rx={rx} ry={ry}
+                  fill={i%2===0 ? '#795548' : '#6D4C41'} opacity="0.35" />
+              ))}
+              {day >= 2 && day <= 8 && (
+                <path d="M60,155 Q63,152 66,155 Q69,158 72,155" fill="none"
+                  stroke="#E8B4B8" strokeWidth="1" strokeLinecap="round" opacity="0.4"
+                  style={{ animation: 'wormWiggle 3s ease-in-out infinite' }} />
+              )}
+
+              {/* ──── SEED ──── */}
+              {showSeed && (
+                <g style={{ animation: 'seedDrop 0.6s ease-out both' }}>
+                  <ellipse cx="100" cy={seedY} rx={seedCracked ? 6.5 : 5.5} ry={seedCracked ? 4.5 : 4}
+                    fill="#A1887F" stroke="#795548" strokeWidth="0.7" />
+                  <ellipse cx="100" cy={seedY} rx="3" ry={seedCracked ? 4 : 3.5}
+                    fill="none" stroke="#8D6E63" strokeWidth="0.6" opacity="0.5" />
+                  <ellipse cx="98.5" cy={seedY - 1.5} rx="2.5" ry="1.3" fill="#BCAAA4" opacity="0.5" />
+                  {seedCracked && (
+                    <path d={`M97,${seedY - 3} L100,${seedY} L103,${seedY - 2}`}
+                      fill="none" stroke="#4E342E" strokeWidth="1" strokeLinecap="round"
+                      style={{ animation: 'crackDraw 0.4s 0.3s both ease-out' }} />
                   )}
                 </g>
               )}
 
-              {/* --------------------------------------------------------------------- */}
-              {/* PHASE 2 & 3: REAL WOODEN TRUNK TREE & CANOPY (DAYS 6 - 21)             */}
-              {/* --------------------------------------------------------------------- */}
-              {(isTreePhase || isForestPhase) && (
-                <g transform="translate(200, 195)">
-                  {/* Underground Roots Anchoring Tree */}
-                  <g opacity="0.8">
-                    <path d="M -8 5 Q -25 25 -45 45" fill="none" stroke="#422614" strokeWidth="6" strokeLinecap="round" />
-                    <path d="M 8 5 Q 30 30 50 50" fill="none" stroke="#422614" strokeWidth="5.5" strokeLinecap="round" />
-                    <path d="M 0 10 Q -5 45 -10 80" fill="none" stroke="#3a2012" strokeWidth="4" strokeLinecap="round" />
-                  </g>
-
-                  {/* Thick Wooden Tree Trunk with Bark Texture */}
-                  <g>
-                    {/* Flared Base Roots above ground */}
-                    <path d="M -22 5 C -15 -15, -12 -40, -10 -70 L 10 -70 C 12 -40, 15 -15, 22 5 Z" fill="url(#barkGrad)" />
-
-                    {/* Bark Line Detail */}
-                    <path d="M -6 -10 Q -3 -35 -4 -65" fill="none" stroke="#2b160a" strokeWidth="1.5" opacity="0.6" />
-                    <path d="M 4 -5 Q 2 -30 5 -60" fill="none" stroke="#2b160a" strokeWidth="1.5" opacity="0.6" />
-
-                    {/* Thick Branching Limbs */}
-                    {/* Left Primary Branch */}
-                    <path d="M -9 -55 Q -25 -75 -45 -90 L -35 -98 Q -18 -82 -6 -68 Z" fill="url(#barkBranch)" />
-                    {/* Right Primary Branch */}
-                    <path d="M 8 -55 Q 28 -78 50 -95 L 40 -102 Q 20 -83 5 -68 Z" fill="url(#barkBranch)" />
-                    {/* Center Branch Extension */}
-                    <path d="M -5 -65 Q 0 -90 -5 -115 L 5 -115 Q 6 -90 5 -65 Z" fill="url(#barkBranch)" />
-                  </g>
-
-                  {/* Organic Layered Foliage Canopy */}
-                  <g transform="translate(0, -115)" className="animate-fadeIn">
-                    {/* Layer 1: Dark Back Shadow Leaves */}
-                    <circle cx="-35" cy="-20" r="38" fill="url(#foliageDark)" />
-                    <circle cx="35" cy="-20" r="38" fill="url(#foliageDark)" />
-                    <circle cx="0" cy="-45" r="45" fill="url(#foliageDark)" />
-
-                    {/* Layer 2: Main Middle Canopy Spheres */}
-                    <circle cx="-25" cy="-10" r="34" fill="url(#foliageBright)" />
-                    <circle cx="25" cy="-10" r="34" fill="url(#foliageBright)" />
-                    <circle cx="0" cy="-35" r="40" fill="url(#foliageBright)" />
-
-                    {/* Layer 3: Top Highlight Leaves */}
-                    <circle cx="-15" cy="-45" r="26" fill="#47ad54" />
-                    <circle cx="15" cy="-45" r="26" fill="#47ad54" />
-                    <circle cx="0" cy="-55" r="28" fill="#7ee388" opacity="0.9" />
-
-                    {/* Individual Leaf Detail Clusters on Canopy Outer Edge */}
-                    {[
-                      [-55,-10],[55,-10],[-40,-45],[40,-45],[0,-75],[-20,-65],[20,-65]
-                    ].map(([lx, ly], idx) => (
-                      <path key={`leaf-cluster-${idx}`} d={`M ${lx} ${ly} C ${lx-10} ${ly-10}, ${lx-5} ${ly-20}, ${lx} ${ly-12} C ${lx+5} ${ly-20}, ${lx+10} ${ly-10}, ${lx} ${ly} Z`} fill="#7ee388" />
-                    ))}
-
-                    {/* Golden Yield Fruits / Coins (Days 12+) */}
-                    {day >= 12 && (
-                      <g className="animate-fadeIn">
-                        {[
-                          [-30,-15], [30,-15], [0,-40], [-20,-45], [20,-45], [-40,-30], [40,-30]
-                        ].map(([fx, fy], fidx) => (
-                          <g key={`fruit-gold-${fidx}`} transform={`translate(${fx}, ${fy})`} filter="url(#glowGold)">
-                            <circle r="7" fill="url(#goldFruit)" stroke="#b45309" strokeWidth="0.8" />
-                            <circle cx="-2" cy="-2" r="2" fill="#ffffff" opacity="0.6" />
-                            {/* ₹ Currency Symbol on Golden Fruits */}
-                            <text textAnchor="middle" y="3" fill="#78350f" fontSize="8" fontWeight="900">₹</text>
-                          </g>
-                        ))}
-                      </g>
+              {/* ──── ROOTS ──── */}
+              {roots.map((r, i) => {
+                const rad = ((90 + r.angle) * Math.PI) / 180;
+                const x2 = 100 + Math.cos(rad) * r.len;
+                const y2 = seedY + 4 + Math.sin(rad) * r.len;
+                const mx = 100 + Math.cos(rad) * r.len * 0.5 + (i%2===0 ? 4 : -4);
+                const my = seedY + 4 + Math.sin(rad) * r.len * 0.5;
+                return (
+                  <g key={`rt${i}`}>
+                    <path d={`M100,${seedY + 4} Q${mx},${my} ${x2},${y2}`}
+                      fill="none" stroke="#A1887F" strokeWidth={1.8 - i * 0.12} strokeLinecap="round"
+                      style={{ strokeDasharray: r.len * 1.5, strokeDashoffset: r.len * 1.5,
+                        animation: `drawLine ${0.7}s ${r.delay}s both ease-out` }} />
+                    {r.len > 12 && (
+                      <line x1={mx} y1={my} x2={mx + (i%2===0?7:-7)} y2={my + 6}
+                        stroke="#BCAAA4" strokeWidth="0.7" strokeLinecap="round"
+                        style={{ strokeDasharray: 12, strokeDashoffset: 12,
+                          animation: `drawLine 0.4s ${r.delay + 0.4}s both ease-out` }} />
                     )}
+                    <circle cx={x2} cy={y2} r="1.2" fill="#D7CCC8" opacity="0"
+                      style={{ animation: `fadeIn 0.3s ${r.delay + 0.5}s both` }} />
                   </g>
+                );
+              })}
+
+              {/* ──── STEM (below + above ground) ──── */}
+              {stemBelow > 0 && !showTree && (
+                <line x1="100" y1={seedY - 3} x2="100" y2={GY}
+                  stroke="#6D8C5E" strokeWidth={Math.min(stemW * 0.7, 3.5)} strokeLinecap="round"
+                  style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'drawLine 0.8s 0.2s both ease-out' }} />
+              )}
+              {sproutVisible && !showTree && (
+                <line x1="100" y1={GY} x2="100" y2={stemTopY}
+                  stroke="url(#stemG)" strokeWidth={stemW} strokeLinecap="round"
+                  style={{ strokeDasharray: stemH + 5, strokeDashoffset: stemH + 5, animation: 'drawLine 1.2s both ease-out' }} />
+              )}
+
+              {/* ──── LEAVES (pre-tree stage) ──── */}
+              {!showTree && leaves.map((l, i) => {
+                const tipX = 100 + l.side * l.sz;
+                const tipY = l.y - l.sz * 0.35;
+                return (
+                  <g key={`lf${i}`}
+                    style={{ animation: `leafPop 0.45s ${l.delay}s both ease-out`, transformOrigin: `100px ${l.y}px` }}>
+                    <path
+                      d={`M100,${l.y} Q${100+l.side*l.sz*0.4},${l.y-l.sz*0.65} ${tipX},${tipY} Q${100+l.side*l.sz*0.65},${l.y+l.sz*0.1} 100,${l.y}`}
+                      fill={['#81C784','#66BB6A','#4CAF50','#43A047'][i%4]} opacity="0.92" />
+                    <line x1="100" y1={l.y} x2={100+l.side*l.sz*0.85} y2={l.y-l.sz*0.28}
+                      stroke="#A5D6A7" strokeWidth="0.4" opacity="0.4" />
+                  </g>
+                );
+              })}
+
+              {/* Floating particles */}
+              {day >= 6 && day < 18 && Array.from({ length: Math.min(day - 5, 8) }).map((_, i) => (
+                <circle key={`fp${i}`} cx={70 + i * 8} cy={GY - 25 - i * 7}
+                  r={0.7 + (i%3) * 0.4} fill={['#FFD54F','#A5D6A7','#FFF9C4'][i%3]}
+                  style={{ animation: `floatUp ${3.5 + i}s ${i*0.4}s infinite ease-in-out` }} />
+              ))}
+
+              {/* Empty state */}
+              {day === 0 && (
+                <g>
+                  <text x="100" y={GY - 20} textAnchor="middle" fill="#A5D6A7" fontSize="6.5" fontWeight="600" opacity="0.45">
+                    Invest to plant your first seed
+                  </text>
+                  <path d="M100,118 L100,125 M96,122 L100,126 L104,122"
+                    fill="none" stroke="#A5D6A7" strokeWidth="1" opacity="0.3"
+                    style={{ animation: 'arrowBounce 1.5s infinite ease-in-out' }} />
                 </g>
               )}
             </g>
-          </g>
+          </>
         )}
       </svg>
+
+      <style>{`
+        @keyframes seedDrop {
+          0%   { opacity:0; transform:translateY(-10px) scale(0.4); }
+          70%  { transform:translateY(2px) scale(1.05); }
+          100% { opacity:1; transform:translateY(0) scale(1); }
+        }
+        @keyframes crackDraw {
+          from { stroke-dasharray:12; stroke-dashoffset:12; opacity:0; }
+          to   { stroke-dashoffset:0; opacity:1; }
+        }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+        @keyframes leafPop {
+          0%   { opacity:0; transform:scale(0) rotate(20deg); }
+          70%  { transform:scale(1.15) rotate(-3deg); }
+          100% { opacity:1; transform:scale(1) rotate(0); }
+        }
+        @keyframes fruitBounce {
+          0%   { opacity:0; transform:scale(0) translateY(-6px); }
+          50%  { opacity:1; transform:scale(1.3) translateY(1px); }
+          100% { transform:scale(1) translateY(0); }
+        }
+        @keyframes treeGrow {
+          from { opacity:0; transform:scaleY(0); }
+          to   { opacity:1; transform:scaleY(1); }
+        }
+        @keyframes earthAppear {
+          0%   { opacity:0; transform:scale(0.05); }
+          40%  { opacity:0.5; }
+          100% { opacity:1; transform:scale(1); }
+        }
+        @keyframes sunPulse {
+          0%,100% { opacity:0.75; transform:scale(1); }
+          50%     { opacity:1; transform:scale(1.08); }
+        }
+        @keyframes twinkle {
+          0%,100% { opacity:0.08; }
+          50%     { opacity:0.8; }
+        }
+        @keyframes floatUp {
+          0%   { transform:translateY(0); opacity:0; }
+          12%  { opacity:0.55; }
+          100% { transform:translateY(-28px) translateX(6px); opacity:0; }
+        }
+        @keyframes cloudDrift {
+          0%   { transform:translateX(-25px); }
+          100% { transform:translateX(25px); }
+        }
+        @keyframes grassSway {
+          0%,100% { transform:rotate(0deg); }
+          50%     { transform:rotate(6deg); }
+        }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes wormWiggle {
+          0%,100% { transform:translateX(0); }
+          25% { transform:translateX(2px); }
+          75% { transform:translateX(-2px); }
+        }
+        @keyframes arrowBounce {
+          0%,100% { transform:translateY(0); opacity:0.3; }
+          50% { transform:translateY(4px); opacity:0.6; }
+        }
+        @keyframes shootingStar {
+          0%   { opacity:0; transform:translate(0,0); }
+          5%   { opacity:0.9; }
+          15%  { opacity:0; transform:translate(30px,15px); }
+          100% { opacity:0; }
+        }
+      `}</style>
     </div>
   );
 };
