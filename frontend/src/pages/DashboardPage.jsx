@@ -9,6 +9,7 @@ import PaymentModal from '../components/PaymentModal';
 import SuccessModal from '../components/SuccessModal';
 import WithdrawalModal from '../components/WithdrawalModal';
 import AddMoneyModal from '../components/AddMoneyModal';
+import NotificationsModal from '../components/NotificationsModal';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const DashboardPage = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [notificationsList, setNotificationsList] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -31,6 +34,9 @@ const DashboardPage = () => {
       const res = await api.get('/dashboard');
       if (res.data) {
         setDashboardData(res.data);
+        if (res.data.notifications) {
+          setNotificationsList(res.data.notifications);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
@@ -39,14 +45,20 @@ const DashboardPage = () => {
     }
   };
 
+  const handleClearUnread = () => {
+    setNotificationsList(prev => prev.map(n => ({ ...n, unread: false })));
+  };
+
   if (loading) return <Loader fullScreen message="Loading Credora Growth Engine..." />;
 
   const user = dashboardData?.user || { name: 'Anish P' };
-  const portfolio = dashboardData?.portfolio || { total_value: 5842.00, invested_amount: 5000.00, total_returns: 842.00 };
+  const portfolio = dashboardData?.portfolio || { total_value: 118930.00, invested_amount: 116510.00, total_returns: 18920.00 };
   const activeCycle = dashboardData?.active_cycle || { current_day: 14, total_days: 22, days_left: 8, plan_name: '22-Day Growth Cycle' };
   const unclaimedAmount = dashboardData?.unclaimed_amount || 42.00;
   const unclaimedCount = dashboardData?.unclaimed_count || 1;
   const streakCount = dashboardData?.streak_count || 18;
+  const notifications = notificationsList.length > 0 ? notificationsList : (dashboardData?.notifications || []);
+  const unreadNotificationsCount = notifications.filter(n => n.unread).length;
 
   // Calculate circular progress percentage (14 / 22 = ~63.6%)
   const progressPercent = Math.round((activeCycle.current_day / activeCycle.total_days) * 100);
@@ -79,13 +91,16 @@ const DashboardPage = () => {
           </div>
         </div>
 
+        {/* Notification Bell Icon */}
         <button 
-          onClick={() => navigate('/activity')}
+          onClick={() => setShowNotificationsModal(true)}
           className="relative p-2.5 text-gray-500 hover:text-gray-900 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
-          title="Notifications & Activity"
+          title="Notifications & Alerts"
         >
           <Bell size={20} />
-          <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#00A859] rounded-full ring-2 ring-white"></span>
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#00A859] rounded-full ring-2 ring-white animate-pulse"></span>
+          )}
         </button>
       </div>
 
@@ -252,6 +267,14 @@ const DashboardPage = () => {
         </div>
 
       </div>
+
+      {/* --- Notifications Drawer Modal --- */}
+      <NotificationsModal
+        isOpen={showNotificationsModal}
+        onClose={() => setShowNotificationsModal(false)}
+        notifications={notifications}
+        onClearUnread={handleClearUnread}
+      />
 
       {/* --- Claim Growth Modal --- */}
       <ClaimModal 
