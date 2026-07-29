@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Eye, EyeOff, Plus, ArrowUpRight, Clock, Info, Sprout, ChevronRight, Flame, Sparkles } from 'lucide-react';
+import { Bell, Eye, EyeOff, Plus, ArrowUpRight, Clock, Info, Sprout, ChevronRight, Flame, Sparkles, Trophy } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 import Loader from '../components/Loader';
@@ -62,10 +62,20 @@ const DashboardPage = () => {
             <h1 className="text-xl font-extrabold text-[#062E23] tracking-tight">{user.name || 'Anish'} 👋</h1>
             
             {/* Streak Counter Header Badge */}
-            <div className="bg-orange-50 border border-orange-200 text-orange-600 px-2.5 py-0.5 rounded-full flex items-center gap-1 text-[11px] font-black shadow-xs">
+            <div className="bg-orange-50 border border-orange-200 text-orange-600 px-2 py-0.5 rounded-full flex items-center gap-1 text-[11px] font-black shadow-xs">
               <Flame size={12} className="fill-orange-500 text-orange-500" />
               <span>{streakCount}d</span>
             </div>
+
+            {/* Leaderboard Rank Badge */}
+            <button 
+              onClick={() => navigate('/leaderboard')}
+              className="bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1 text-[11px] font-black hover:bg-amber-100 transition-colors shadow-xs"
+              title="View Leaderboard Ranks"
+            >
+              <Trophy size={12} className="text-amber-500 fill-amber-500" />
+              <span>Rank #1</span>
+            </button>
           </div>
         </div>
 
@@ -146,7 +156,7 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Plant Sprout Glass Illustration (Subtle Glow Aura - No Bouncing!) */}
+            {/* Plant Sprout Glass Illustration (Subtle Glow Aura) */}
             <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-md shadow-amber-500/10 border border-amber-200 flex items-center justify-center text-3xl relative">
               <div className="absolute inset-0 bg-emerald-400/15 rounded-2xl blur-sm -z-10"></div>
               <span>🪴</span>
@@ -214,6 +224,30 @@ const DashboardPage = () => {
                 <span>Next Credit: <strong className="text-[#062E23]">Tomorrow • 10:00 AM</strong></span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* --- Community Leaderboard Banner --- */}
+        <div 
+          onClick={() => navigate('/leaderboard')}
+          className="bg-gradient-to-r from-[#062E23] to-[#0B3B2F] rounded-3xl p-4.5 text-white shadow-md flex items-center justify-between cursor-pointer hover:shadow-lg transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/30 rounded-2xl flex items-center justify-center text-amber-300">
+              <Trophy size={24} className="fill-amber-400 text-amber-400" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-emerald-300 uppercase tracking-wider">Investor Leaderboard</div>
+              <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                <span>Top Investor Rankings</span>
+                <span className="text-[10px] bg-amber-400 text-[#062E23] px-2 py-0.5 rounded-full font-black">Rank #1 🔥</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-emerald-300 font-bold text-xs group-hover:translate-x-1 transition-transform">
+            <span>View Ranks</span>
+            <ChevronRight size={16} />
           </div>
         </div>
 
