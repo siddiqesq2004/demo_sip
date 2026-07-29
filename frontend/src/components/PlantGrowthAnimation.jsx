@@ -44,44 +44,59 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
   const sunR          = day >= 1 ? 4 + Math.min(day * 0.6, 10) : 0;
   const stemTopY      = GY - stemH;
 
-  /* ───── ORGANIC ROOTS (cubic beziers) ───── */
+  /* ───── ORGANIC ROOTS (cubic beziers) ─────
+     Origin point changes based on stage:
+     - Seed stage (day 1-2): roots grow FROM the seed underground
+     - Sprout/Plant/Tree (day 3+): roots grow FROM ground level (trunk base)
+  */
+  const rootOriginY = sproutVisible ? GY : seedY + 4;
+  const rootThicknessScale = showTree ? 1.6 : 1.0; // thicker roots for tree
+
   const rootPaths = useMemo(() => {
-    // Hand-crafted natural root paths with organic curves
-    const allRoots = [
-      // Main taproot — goes straight-ish down
-      { d: 'M100,SY C100,SY+12 98,SY+25 96,SY+38 C94,SY+48 92,SY+55 88,SY+62', w: 2.2, delay: 0 },
-      // Left primary root — curves left
-      { d: 'M100,SY C97,SY+8 92,SY+14 86,SY+20 C80,SY+26 74,SY+30 68,SY+35', w: 1.8, delay: 0.1 },
-      // Right primary root — curves right
-      { d: 'M100,SY C103,SY+8 108,SY+14 114,SY+20 C120,SY+26 126,SY+30 132,SY+35', w: 1.8, delay: 0.15 },
-      // Left secondary — shorter, curves more
-      { d: 'M100,SY C96,SY+6 90,SY+10 84,SY+12 C78,SY+14 72,SY+18 66,SY+22', w: 1.2, delay: 0.25 },
-      // Right secondary
-      { d: 'M100,SY C104,SY+6 110,SY+10 116,SY+12 C122,SY+14 128,SY+18 134,SY+22', w: 1.2, delay: 0.3 },
-      // Left branch off taproot
-      { d: 'M96,SY+38 C90,SY+42 84,SY+44 78,SY+48', w: 1.0, delay: 0.4 },
-      // Right branch off taproot
-      { d: 'M96,SY+38 C100,SY+44 106,SY+46 112,SY+50', w: 1.0, delay: 0.45 },
-      // Deep left fine root
-      { d: 'M86,SY+20 C82,SY+26 78,SY+32 72,SY+38', w: 0.8, delay: 0.5 },
-      // Deep right fine root
-      { d: 'M114,SY+20 C118,SY+26 122,SY+32 128,SY+38', w: 0.8, delay: 0.55 },
-      // Very fine hair roots
-      { d: 'M68,SY+35 C64,SY+38 60,SY+42 56,SY+45', w: 0.5, delay: 0.6 },
-      { d: 'M132,SY+35 C136,SY+38 140,SY+42 144,SY+45', w: 0.5, delay: 0.65 },
+    const SY = sproutVisible ? GY : seedY + 4;
+
+    // Seed stage: small roots from seed
+    const seedRoots = [
+      { d: `M100,${SY} C100,${SY+10} 98,${SY+18} 96,${SY+28}`, w: 1.8, delay: 0 },
+      { d: `M100,${SY} C97,${SY+7} 92,${SY+12} 86,${SY+18}`, w: 1.4, delay: 0.1 },
+      { d: `M100,${SY} C103,${SY+7} 108,${SY+12} 114,${SY+18}`, w: 1.4, delay: 0.15 },
+      { d: `M100,${SY} C96,${SY+5} 90,${SY+9} 82,${SY+14}`, w: 1.0, delay: 0.25 },
+      { d: `M100,${SY} C104,${SY+5} 110,${SY+9} 118,${SY+14}`, w: 1.0, delay: 0.3 },
     ];
 
-    // How many roots to show based on progress
+    // Plant/Tree stage: deeper, wider roots from trunk base
+    const treeRoots = [
+      // Main taproot — deep center
+      { d: `M100,${SY} C100,${SY+14} 98,${SY+28} 96,${SY+42} C94,${SY+52} 92,${SY+60} 88,${SY+68}`, w: 2.8, delay: 0 },
+      // Left primary — curves left and down
+      { d: `M100,${SY} C96,${SY+5} 90,${SY+12} 82,${SY+20} C74,${SY+28} 66,${SY+34} 58,${SY+40}`, w: 2.2, delay: 0.08 },
+      // Right primary — curves right and down
+      { d: `M100,${SY} C104,${SY+5} 110,${SY+12} 118,${SY+20} C126,${SY+28} 134,${SY+34} 142,${SY+40}`, w: 2.2, delay: 0.12 },
+      // Left secondary — shallower spread
+      { d: `M100,${SY} C95,${SY+4} 88,${SY+8} 78,${SY+12} C68,${SY+16} 60,${SY+20} 52,${SY+24}`, w: 1.6, delay: 0.2 },
+      // Right secondary
+      { d: `M100,${SY} C105,${SY+4} 112,${SY+8} 122,${SY+12} C132,${SY+16} 140,${SY+20} 148,${SY+24}`, w: 1.6, delay: 0.24 },
+      // Left branch off taproot
+      { d: `M96,${SY+42} C88,${SY+46} 80,${SY+48} 72,${SY+52}`, w: 1.2, delay: 0.35 },
+      // Right branch off taproot
+      { d: `M96,${SY+42} C102,${SY+48} 110,${SY+50} 118,${SY+54}`, w: 1.2, delay: 0.38 },
+      // Deep left fine root
+      { d: `M82,${SY+20} C76,${SY+28} 70,${SY+34} 62,${SY+42}`, w: 0.9, delay: 0.45 },
+      // Deep right fine root
+      { d: `M118,${SY+20} C124,${SY+28} 130,${SY+34} 138,${SY+42}`, w: 0.9, delay: 0.48 },
+      // Hair roots
+      { d: `M58,${SY+40} C52,${SY+44} 46,${SY+48} 40,${SY+52}`, w: 0.6, delay: 0.55 },
+      { d: `M142,${SY+40} C148,${SY+44} 154,${SY+48} 160,${SY+52}`, w: 0.6, delay: 0.58 },
+    ];
+
+    const allRoots = sproutVisible ? treeRoots : seedRoots;
     const count = Math.ceil(rootProgress * allRoots.length);
-    const startY = seedY + 4;
 
     return allRoots.slice(0, count).map(r => ({
       ...r,
-      // Replace SY placeholder with actual seed Y
-      path: r.d.replace(/SY\+(\d+)/g, (_, n) => startY + parseInt(n))
-               .replace(/SY/g, startY),
+      w: r.w * (showTree ? 1.5 : 1.0),
     }));
-  }, [rootProgress, seedY]);
+  }, [rootProgress, seedY, sproutVisible, showTree, GY]);
 
   /* ───── LEAVES ───── */
   const leaves = useMemo(() => {
@@ -426,7 +441,7 @@ const PlantGrowthAnimation = ({ day = 0, totalDays = 22 }) => {
 
               {/* ── ORGANIC ROOTS ── */}
               {showRoots && rootPaths.map((r, i) => (
-                <path key={`rt${i}`} d={r.path}
+                <path key={`rt${i}`} d={r.d}
                   fill="none" stroke="#A1887F" strokeWidth={r.w} strokeLinecap="round"
                   style={{
                     strokeDasharray: 120,
