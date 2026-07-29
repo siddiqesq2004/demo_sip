@@ -66,6 +66,12 @@ CREATE TABLE IF NOT EXISTS portfolio (
   total_value DECIMAL(15, 2) DEFAULT 0.00,
   invested_amount DECIMAL(15, 2) DEFAULT 0.00,
   total_returns DECIMAL(15, 2) DEFAULT 0.00,
+  available_cash DECIMAL(15, 2) DEFAULT 2420.00,
+  unclaimed_amount DECIMAL(15, 2) DEFAULT 42.00,
+  unclaimed_count INT DEFAULT 1,
+  streak_count INT DEFAULT 18,
+  auto_reinvest TINYINT DEFAULT 1,
+  unclaimed_days TEXT,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

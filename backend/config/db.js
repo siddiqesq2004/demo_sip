@@ -387,37 +387,41 @@ function queryMemoryStore(sql, params = []) {
 
   if (upperSql.startsWith('UPDATE')) {
     if (upperSql.includes('UPDATE PORTFOLIO')) {
-      const userId = params[params.length - 1];
-      const idx = memoryStore.portfolio.findIndex(p => Number(p.user_id) === Number(userId));
-      if (idx !== -1) {
-        memoryStore.portfolio[idx].total_value = parseFloat(params[0]);
-        memoryStore.portfolio[idx].invested_amount = parseFloat(params[1]);
-        memoryStore.portfolio[idx].total_returns = parseFloat(params[2]);
-        if (params[3] !== undefined) memoryStore.portfolio[idx].available_cash = parseFloat(params[3]);
-        if (params[4] !== undefined) memoryStore.portfolio[idx].unclaimed_amount = parseFloat(params[4]);
-        if (params[5] !== undefined) memoryStore.portfolio[idx].unclaimed_count = parseInt(params[5]);
-        if (params[6] !== undefined) memoryStore.portfolio[idx].streak_count = parseInt(params[6]);
-        if (params[7] !== undefined) memoryStore.portfolio[idx].auto_reinvest = parseInt(params[7]);
-        if (params[8] !== undefined) memoryStore.portfolio[idx].unclaimed_days = params[8];
-        saveJsonStore();
-        return [{ affectedRows: 1 }];
-      } else {
+      const userId = Number(params[params.length - 1]);
+      let idx = memoryStore.portfolio.findIndex(p => Number(p.user_id) === userId);
+      
+      if (idx === -1) {
         memoryStore.portfolio.push({
           id: memoryStore.portfolio.length + 1,
-          user_id: Number(userId),
+          user_id: userId,
           total_value: parseFloat(params[0] || 0),
           invested_amount: parseFloat(params[1] || 0),
           total_returns: parseFloat(params[2] || 0),
-          available_cash: params[3] !== undefined ? parseFloat(params[3]) : 2420.00,
-          unclaimed_amount: params[4] !== undefined ? parseFloat(params[4]) : 42.00,
-          unclaimed_count: params[5] !== undefined ? parseInt(params[5]) : 1,
-          streak_count: params[6] !== undefined ? parseInt(params[6]) : 18,
-          auto_reinvest: params[7] !== undefined ? parseInt(params[7]) : 1,
-          unclaimed_days: params[8] || '[]'
+          available_cash: 2420.00,
+          unclaimed_amount: 42.00,
+          unclaimed_count: 1,
+          streak_count: 18,
+          auto_reinvest: 1,
+          unclaimed_days: []
         });
-        saveJsonStore();
-        return [{ affectedRows: 1 }];
+        idx = memoryStore.portfolio.length - 1;
       }
+
+      memoryStore.portfolio[idx].total_value = parseFloat(params[0]);
+      memoryStore.portfolio[idx].invested_amount = parseFloat(params[1]);
+      memoryStore.portfolio[idx].total_returns = parseFloat(params[2]);
+
+      if (params.length >= 10) {
+        memoryStore.portfolio[idx].available_cash = parseFloat(params[3]);
+        memoryStore.portfolio[idx].unclaimed_amount = parseFloat(params[4]);
+        memoryStore.portfolio[idx].unclaimed_count = parseInt(params[5]);
+        memoryStore.portfolio[idx].streak_count = parseInt(params[6]);
+        memoryStore.portfolio[idx].auto_reinvest = parseInt(params[7]);
+        memoryStore.portfolio[idx].unclaimed_days = params[8];
+      }
+
+      saveJsonStore();
+      return [{ affectedRows: 1 }];
     } else if (upperSql.includes('UPDATE WITHDRAWALS')) {
       const withdrawalId = params[params.length - 1];
       const idx = memoryStore.withdrawals.findIndex(w => Number(w.id) === Number(withdrawalId));
