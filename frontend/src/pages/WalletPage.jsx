@@ -56,16 +56,42 @@ const WalletPage = () => {
     }
   };
 
-  const handleDepositSuccess = (depositedAmt) => {
+  const handleDepositSuccess = (depositedAmt, target, method) => {
     if (depositedAmt) {
       const num = parseFloat(depositedAmt);
+      const isAvail = target === 'available_cash';
       setWalletData(prev => {
         const curAvailable = prev?.available_cash !== undefined ? parseFloat(prev.available_cash) : 2420.00;
         const curInvested = prev?.currently_invested !== undefined ? parseFloat(prev.currently_invested) : 10000.00;
-        const newAvailable = curAvailable + num;
+        const newAvailable = isAvail ? (curAvailable + num) : curAvailable;
+        const newInvested = !isAvail ? (curInvested + num) : curInvested;
+        const newTotal = newAvailable + newInvested;
+        const newActivity = [
+          { type: 'DEPOSIT', amount: num, description: `+ Added ₹${num.toLocaleString('en-IN')} to ${isAvail ? 'Available Cash' : 'Total Wallet'} via ${method || 'UPI'}`, created_at: 'Just now' },
+          ...(prev?.recent_activity || [])
+        ];
+        return {
+          ...prev,
+          available_cash: newAvailable,
+          currently_invested: newInvested,
+          wallet_balance: newTotal,
+          recent_activity: newActivity
+        };
+      });
+    }
+    fetchWalletData();
+  };
+
+  const handleWithdrawalSuccess = (withdrawnAmt, remarks) => {
+    if (withdrawnAmt) {
+      const num = parseFloat(withdrawnAmt);
+      setWalletData(prev => {
+        const curAvailable = prev?.available_cash !== undefined ? parseFloat(prev.available_cash) : 2420.00;
+        const curInvested = prev?.currently_invested !== undefined ? parseFloat(prev.currently_invested) : 10000.00;
+        const newAvailable = Math.max(0, curAvailable - num);
         const newTotal = newAvailable + curInvested;
         const newActivity = [
-          { type: 'DEPOSIT', amount: num, description: 'Added Money via UPI', created_at: 'Just now' },
+          { type: 'WITHDRAWAL', amount: -num, description: `Withdrawal Request Sent (${remarks || 'Personal'})`, created_at: 'Just now' },
           ...(prev?.recent_activity || [])
         ];
         return {
@@ -76,10 +102,6 @@ const WalletPage = () => {
         };
       });
     }
-    fetchWalletData();
-  };
-
-  const handleWithdrawalSuccess = () => {
     fetchWalletData();
   };
 

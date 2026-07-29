@@ -63,18 +63,12 @@ export default function WithdrawalModal({ isOpen, onClose, totalWalletBalance = 
         remarks: remarks.trim()
       });
 
-      if (res.data || res.success) {
-        setSubmitted(true);
-        if (onSuccess) onSuccess();
-      } else {
-        setSubmitted(true);
-        if (onSuccess) onSuccess();
-      }
+      if (onSuccess) onSuccess(numericAmount, remarks.trim());
+      handleResetAndClose();
     } catch (err) {
       console.error('Withdrawal request error:', err);
-      // Demo fallback success so UI always updates dynamically
-      setSubmitted(true);
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(numericAmount, remarks.trim());
+      handleResetAndClose();
     } finally {
       setLoading(false);
     }

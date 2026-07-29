@@ -312,7 +312,7 @@
       "password": "$2a$10$c0pcgEFLizTseujwjJ.53.P.mLfgyRq3NGW/AKCVjWbENZSNL7hzC",
       "role": "WITHDRAWAL_APPROVER",
       "permissions": "WITHDRAWALS_ONLY",
-      "status": "BUSY",
+      "status": "FREE",
       "created_at": "2026-07-27 10:00:00"
     },
     {
@@ -352,7 +352,7 @@
       "password": "$2a$10$c0pcgEFLizTseujwjJ.53.P.mLfgyRq3NGW/AKCVjWbENZSNL7hzC",
       "role": "WITHDRAWAL_APPROVER",
       "permissions": "WITHDRAWALS_ONLY",
-      "status": "FREE",
+      "status": "BUSY",
       "created_at": "2026-07-27 11:15:00"
     }
   ],
@@ -1006,15 +1006,25 @@
       "target_user_id": 38,
       "target_user_name": "Priya Sharma",
       "created_at": "2026-07-29 09:23:33"
+    },
+    {
+      "id": 66,
+      "subadmin_id": 5,
+      "subadmin_name": "Siddiqe",
+      "action_type": "WITHDRAWAL_APPROVAL",
+      "description": "Approved payout of ₹18,000 to HDFC Bank for User",
+      "target_user_id": 1,
+      "target_user_name": null,
+      "created_at": "2026-07-29 15:48:49"
     }
   ],
   "portfolio": [
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 118930,
+      "total_value": 100930,
       "invested_amount": 116510,
-      "total_returns": 18920,
+      "total_returns": 920,
       "available_cash": 2420
     },
     {
@@ -4330,12 +4340,26 @@
       "bank_name": "HDFC Bank",
       "account_no": "49218820391",
       "ifsc": "HDFC0001234",
+      "status": "APPROVED",
+      "processed_by_subadmin_id": 5,
+      "processed_by_name": "Siddiqe",
+      "created_at": "2026-07-29 10:13:20",
+      "processed_at": "2026-07-29 15:48:49",
+      "remarks": "Savings"
+    },
+    {
+      "id": 64,
+      "user_id": 1,
+      "amount": 17999,
+      "bank_name": "HDFC Bank",
+      "account_no": "49218820391",
+      "ifsc": "HDFC0001234",
       "status": "PENDING_APPROVAL",
       "processed_by_subadmin_id": null,
       "processed_by_name": null,
-      "created_at": "2026-07-29 10:13:20",
+      "created_at": "2026-07-29 10:19:56",
       "processed_at": null,
-      "remarks": "Savings"
+      "remarks": "savings"
     }
   ],
   "support_chats": [
@@ -5881,6 +5905,15 @@
       "description": "🌱 Growth Claimed (+₹42)",
       "status": "COMPLETED",
       "created_at": "2026-07-29 09:26:38"
+    },
+    {
+      "id": 116,
+      "user_id": 1,
+      "type": "WITHDRAWAL",
+      "amount": 18000,
+      "description": "Withdrawal to HDFC Bank (49218820391) - Approved by Siddiqe",
+      "status": "COMPLETED",
+      "created_at": "2026-07-29 15:48:49"
     }
   ],
   "bank_accounts": [

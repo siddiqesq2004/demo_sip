@@ -300,24 +300,39 @@ const DashboardPage = () => {
       <AddMoneyModal
         isOpen={showAddMoneyModal}
         onClose={() => setShowAddMoneyModal(false)}
-        onSuccess={(depositedAmt) => {
+        onSuccess={(depositedAmt, target, method) => {
           if (depositedAmt) {
             const num = parseFloat(depositedAmt);
+            const isAvail = target === 'available_cash';
             setDashboardData(prev => {
               if (!prev) return prev;
               const currentVal = prev.portfolio?.total_value || 118930.00;
               const currentAvailable = prev.portfolio?.available_cash || 2420.00;
+              const newNotifs = [
+                {
+                  id: `dep-${Date.now()}`,
+                  type: 'payout',
+                  title: 'Money Added Successfully',
+                  desc: `₹${num.toLocaleString('en-IN')} added to your ${isAvail ? 'Available Cash' : 'Total Wallet Balance'} via ${method || 'UPI'}.`,
+                  time: 'Just now',
+                  unread: true
+                },
+                ...(prev.notifications || [])
+              ];
+              setNotificationsList(newNotifs);
               return {
                 ...prev,
                 portfolio: {
                   ...prev.portfolio,
                   total_value: currentVal + num,
-                  available_cash: currentAvailable + num
-                }
+                  available_cash: isAvail ? (currentAvailable + num) : currentAvailable
+                },
+                notifications: newNotifs
               };
             });
           }
           fetchDashboardData();
+          setShowNotificationsModal(true);
         }}
       />
 
@@ -326,7 +341,41 @@ const DashboardPage = () => {
         isOpen={showWithdrawalModal}
         onClose={() => setShowWithdrawalModal(false)}
         totalWalletBalance={portfolio.total_value}
-        onSuccess={() => fetchDashboardData()}
+        onSuccess={(withdrawnAmt, remarks) => {
+          if (withdrawnAmt) {
+            const num = parseFloat(withdrawnAmt);
+            setDashboardData(prev => {
+              if (!prev) return prev;
+              const currentVal = prev.portfolio?.total_value || 118930.00;
+              const currentAvailable = prev.portfolio?.available_cash || 2420.00;
+              const newVal = Math.max(0, currentVal - num);
+              const newAvail = Math.max(0, currentAvailable - num);
+              const newNotifs = [
+                {
+                  id: `w-pending-${Date.now()}`,
+                  type: 'withdrawal_pending',
+                  title: 'Approval Request Sent to Officials',
+                  desc: `Approval request of ₹${num.toLocaleString('en-IN')} sent to sub-admin officials (Reason: "${remarks || 'Personal Savings'}"). After review, amount will be sent to your account shortly. Please check notifications frequently for updates.`,
+                  time: 'Just now',
+                  unread: true
+                },
+                ...(prev.notifications || [])
+              ];
+              setNotificationsList(newNotifs);
+              return {
+                ...prev,
+                portfolio: {
+                  ...prev.portfolio,
+                  total_value: newVal,
+                  available_cash: newAvail
+                },
+                notifications: newNotifs
+              };
+            });
+          }
+          fetchDashboardData();
+          setShowNotificationsModal(true);
+        }}
       />
 
       <SuccessModal 
