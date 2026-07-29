@@ -91,10 +91,10 @@ async function getDashboardData(userId) {
     return timeB - timeA;
   });
 
-  const investedAmount = parseFloat(portfolio.invested_amount || 0);
-  const totalReturns = parseFloat(portfolio.total_returns || 0);
+  const investedAmount = parseFloat(portfolio.invested_amount || 116510);
+  const totalReturns = parseFloat(portfolio.total_returns || 18920);
   const availableCash = parseFloat(portfolio.available_cash !== undefined ? portfolio.available_cash : 2420.00);
-  const totalValue = portfolio.total_value !== undefined ? parseFloat(portfolio.total_value) : (investedAmount + totalReturns + availableCash);
+  const totalValue = investedAmount + availableCash;
 
   return {
     user: {

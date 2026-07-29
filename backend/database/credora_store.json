@@ -1022,10 +1022,10 @@
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 110930,
+      "total_value": 133930,
       "invested_amount": 116510,
-      "total_returns": 920,
-      "available_cash": 12420,
+      "total_returns": 18920,
+      "available_cash": 17420,
       "unclaimed_amount": 42,
       "unclaimed_count": 1,
       "streak_count": 18,
@@ -5937,6 +5937,15 @@
       "description": "+ Added ₹5,000 to Available Cash via HDFC Bank Ltd",
       "status": "COMPLETED",
       "created_at": "2026-07-29 16:11:51"
+    },
+    {
+      "id": 119,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 5000,
+      "description": "+ Added ₹5,000 to Available Cash via HDFC Bank Ltd",
+      "status": "COMPLETED",
+      "created_at": "2026-07-29 16:18:32"
     }
   ],
   "bank_accounts": [
