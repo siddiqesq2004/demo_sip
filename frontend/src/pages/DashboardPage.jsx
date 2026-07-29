@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Eye, EyeOff, Plus, ArrowUpRight, Clock, Info, Sprout, ChevronRight, Flame, Sparkles } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
@@ -6,14 +7,19 @@ import Loader from '../components/Loader';
 import ClaimModal from '../components/ClaimModal';
 import PaymentModal from '../components/PaymentModal';
 import SuccessModal from '../components/SuccessModal';
+import WithdrawalModal from '../components/WithdrawalModal';
+import AddMoneyModal from '../components/AddMoneyModal';
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [showValue, setShowValue] = useState(true);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -63,7 +69,11 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <button className="relative p-2.5 text-gray-500 hover:text-gray-900 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors">
+        <button 
+          onClick={() => navigate('/activity')}
+          className="relative p-2.5 text-gray-500 hover:text-gray-900 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
+          title="Notifications & Activity"
+        >
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#00A859] rounded-full ring-2 ring-white"></span>
         </button>
@@ -72,9 +82,9 @@ const DashboardPage = () => {
       <div className="px-5 pt-4 space-y-4">
         
         {/* --- Dark Emerald Hero Portfolio Card --- */}
-        <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] rounded-3xl p-6 text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] rounded-3xl p-6 text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden space-y-4">
           
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-emerald-200">Portfolio Value</span>
               <button onClick={() => setShowValue(!showValue)} className="text-emerald-300 hover:text-white">
@@ -88,7 +98,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Portfolio Amount */}
-          <div className="text-4xl font-extrabold tracking-tight mb-4">
+          <div className="text-4xl font-extrabold tracking-tight">
             {showValue ? `₹${portfolio.total_value.toLocaleString('en-IN', { minimumFractionDigits: 0 })}` : '••••••••'}
           </div>
 
@@ -99,6 +109,26 @@ const DashboardPage = () => {
               +{formatCurrency(portfolio.total_returns || 842)}
             </span>
           </div>
+
+          {/* Action Buttons Row: Add Money & Withdraw */}
+          <div className="pt-3 border-t border-white/10 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setShowAddMoneyModal(true)}
+              className="bg-[#00A859] hover:bg-[#008f4c] text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-900/30 flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
+            >
+              <Plus size={18} strokeWidth={2.5} />
+              <span>Add Money</span>
+            </button>
+
+            <button
+              onClick={() => setShowWithdrawalModal(true)}
+              className="bg-white hover:bg-gray-100 text-[#062E23] font-extrabold py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
+            >
+              <ArrowUpRight size={18} strokeWidth={2.5} className="text-[#062E23]" />
+              <span>Withdraw</span>
+            </button>
+          </div>
+
         </div>
 
         {/* --- "Claim to Unlock" Today's Growth Card --- */}
@@ -116,9 +146,10 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Plant Sprout Glass Illustration */}
-            <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-sm border border-amber-200 flex items-center justify-center text-3xl animate-bounce">
-              🪴
+            {/* Plant Sprout Glass Illustration (Subtle Glow Aura - No Bouncing!) */}
+            <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-md shadow-amber-500/10 border border-amber-200 flex items-center justify-center text-3xl relative">
+              <div className="absolute inset-0 bg-emerald-400/15 rounded-2xl blur-sm -z-10"></div>
+              <span>🪴</span>
             </div>
           </div>
 
@@ -206,6 +237,21 @@ const DashboardPage = () => {
           setShowSuccessModal(true);
           fetchDashboardData();
         }}
+      />
+
+      {/* --- Add Money Modal --- */}
+      <AddMoneyModal
+        isOpen={showAddMoneyModal}
+        onClose={() => setShowAddMoneyModal(false)}
+        onSuccess={() => fetchDashboardData()}
+      />
+
+      {/* --- Withdrawal Modal --- */}
+      <WithdrawalModal
+        isOpen={showWithdrawalModal}
+        onClose={() => setShowWithdrawalModal(false)}
+        availableBalance={portfolio.total_value}
+        onSuccess={() => fetchDashboardData()}
       />
 
       <SuccessModal 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Settings, Plus, ArrowUpRight, ArrowDownLeft, RefreshCw, Sprout, ShieldCheck, ChevronRight } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
@@ -6,14 +7,19 @@ import Loader from '../components/Loader';
 import ClaimModal from '../components/ClaimModal';
 import PaymentModal from '../components/PaymentModal';
 import SuccessModal from '../components/SuccessModal';
+import WithdrawalModal from '../components/WithdrawalModal';
+import AddMoneyModal from '../components/AddMoneyModal';
 
 const WalletPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [walletData, setWalletData] = useState(null);
   const [autoReinvest, setAutoReinvest] = useState(true);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
 
   useEffect(() => {
     fetchWalletData();
@@ -40,63 +46,70 @@ const WalletPage = () => {
         unclaimed_amount: 42.00,
         unclaimed_count: 1,
         recent_activity: [
-          { type: 'DEPOSIT', amount: 2000, description: 'Deposit', created_at: 'Today, 9:15 AM' },
-          { type: 'CLAIM', amount: 42, description: 'Growth Claimed', created_at: 'Today, 9:00 AM' },
-          { type: 'REINVEST', amount: -42, description: 'Auto Reinvest', created_at: 'Yesterday, 10:00 AM' },
-          { type: 'WITHDRAWAL', amount: -1000, description: 'Withdrawal', created_at: '12 May, 6:30 PM' }
+          { type: 'CLAIM', amount: 42, description: 'Growth Claim Credited', created_at: 'Today, 10:00 AM' },
+          { type: 'DAILY_RETURN', amount: 100, description: 'Daily 1% Return', created_at: 'Yesterday, 10:00 AM' },
+          { type: 'WITHDRAWAL', amount: -1000, description: 'Bank Cashout Requested', created_at: '12 May, 6:30 PM' }
         ]
       });
-    } finally {
+    } fontinally: {
       setLoading(false);
     }
   };
 
   const handleToggleAutoReinvest = async () => {
-    const newStatus = !autoReinvest;
-    setAutoReinvest(newStatus);
+    const nextState = !autoReinvest;
+    setAutoReinvest(nextState);
     try {
-      await api.post('/wallet/auto-reinvest', { status: newStatus });
-    } catch (e) {
-      console.error('Failed to update auto-reinvest:', e);
+      await api.post('/wallet/auto-reinvest', { auto_reinvest: nextState });
+    } catch (err) {
+      console.error('Failed to update auto reinvest setting:', err);
     }
   };
 
-  if (loading) return <Loader fullScreen message="Loading Credora Wallet..." />;
+  if (loading) return <Loader fullScreen message="Fetching Credora Wallet..." />;
 
   const walletBalance = walletData?.wallet_balance || 12420.00;
   const currentlyInvested = walletData?.currently_invested || 10000.00;
-  const cycleDay = walletData?.cycle_day || 14;
   const availableCash = walletData?.available_cash || 2420.00;
+  const cycleDay = walletData?.cycle_day || 14;
   const unclaimedAmount = walletData?.unclaimed_amount || 42.00;
+  const recentActivity = walletData?.recent_activity || [];
 
   return (
     <div className="bg-[#F9FAFB] min-h-screen pb-24 text-gray-900">
       
-      {/* --- Top Header --- */}
-      <div className="bg-white px-5 pt-12 pb-3 border-b border-gray-100 flex items-center justify-between sticky top-0 z-30">
-        <h1 className="text-xl font-bold text-[#062E23] tracking-tight">Credora Wallet</h1>
-        <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50">
+      {/* --- Top Header Bar --- */}
+      <div className="bg-white px-5 pt-12 pb-3.5 flex items-center justify-between border-b border-gray-100">
+        <div>
+          <span className="text-xs font-semibold text-gray-400 block uppercase tracking-wider">Account</span>
+          <h1 className="text-xl font-extrabold text-[#062E23] tracking-tight">Credora Wallet</h1>
+        </div>
+
+        <button 
+          onClick={() => navigate('/profile')}
+          className="p-2 text-gray-500 hover:text-gray-900 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
           <Settings size={20} />
         </button>
       </div>
 
-      <div className="px-5 pt-5 space-y-4">
+      <div className="px-5 pt-4 space-y-4">
         
-        {/* --- Dark Emerald Wallet Balance Card --- */}
-        <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] rounded-3xl p-6 text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-emerald-200 uppercase tracking-wider">
-              Wallet Balance
-            </span>
-            <ShieldCheck size={20} className="text-emerald-400 opacity-80" />
-          </div>
+        {/* --- Dark Emerald Hero Wallet Card --- */}
+        <div className="bg-gradient-to-br from-[#0B3B2F] via-[#062E23] to-[#031D16] rounded-3xl p-6 text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden space-y-4">
           
-          <div className="text-4xl font-extrabold tracking-tight mb-6">
-            ₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-emerald-200 uppercase tracking-wider">Total Wallet Balance</span>
+            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <ShieldCheck size={12} /> Protected
+            </span>
           </div>
 
-          {/* 4-Grid Stats Box */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 grid grid-cols-2 gap-4 border border-white/10">
+          <div className="text-4xl font-black tracking-tight">
+            ₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          </div>
+
+          <div className="pt-3 border-t border-white/10 grid grid-cols-2 gap-4">
             <div>
               <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Currently Invested</span>
               <span className="text-sm font-bold text-white">₹{currentlyInvested.toLocaleString('en-IN')}</span>
@@ -134,16 +147,16 @@ const WalletPage = () => {
         {/* --- Action Buttons Row --- */}
         <div className="grid grid-cols-2 gap-3">
           <button 
-            onClick={() => setShowPaymentModal(true)}
-            className="bg-[#00A859] hover:bg-[#008f4c] text-white font-bold py-3.5 px-4 rounded-2xl shadow-md shadow-emerald-600/15 flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
+            onClick={() => setShowAddMoneyModal(true)}
+            className="bg-[#00A859] hover:bg-[#008f4c] text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-md shadow-emerald-600/15 flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>Add Money</span>
           </button>
 
           <button 
-            onClick={() => window.location.href = '/profile'}
-            className="bg-white hover:bg-gray-50 text-[#062E23] border border-gray-200 font-bold py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
+            onClick={() => setShowWithdrawalModal(true)}
+            className="bg-white hover:bg-gray-50 text-[#062E23] border border-gray-200 font-extrabold py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all text-sm"
           >
             <ArrowUpRight size={18} strokeWidth={2.5} className="text-[#062E23]" />
             <span>Withdraw</span>
@@ -156,7 +169,7 @@ const WalletPage = () => {
           className="bg-gradient-to-r from-amber-50/90 to-yellow-50/80 border border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-300 transition-all group"
         >
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-amber-200">
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-amber-200">
               🪴
             </div>
             <div>
@@ -177,25 +190,24 @@ const WalletPage = () => {
         <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-[#062E23]">Recent Activity</h2>
-            <button className="text-xs font-bold text-gray-400 hover:text-[#00A859]">View All</button>
+            <button 
+              onClick={() => navigate('/activity')} 
+              className="text-xs font-bold text-[#00A859] hover:underline"
+            >
+              View All
+            </button>
           </div>
 
           <div className="space-y-3">
-            {walletData?.recent_activity?.map((act, idx) => {
-              const isPositive = act.amount > 0 || act.type === 'DEPOSIT' || act.type === 'CLAIM';
+            {recentActivity.map((act, idx) => {
+              const isPositive = act.amount > 0;
               return (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50/80 rounded-2xl border border-gray-100/80">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                      act.type === 'DEPOSIT' ? 'bg-emerald-50 text-[#00A859]' :
-                      act.type === 'CLAIM' ? 'bg-amber-50 text-amber-600' :
-                      act.type === 'REINVEST' ? 'bg-blue-50 text-blue-600' :
-                      'bg-gray-50 text-gray-600'
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                      isPositive ? 'bg-emerald-100 text-[#00A859]' : 'bg-gray-200 text-gray-700'
                     }`}>
-                      {act.type === 'DEPOSIT' && <ArrowDownLeft size={18} />}
-                      {act.type === 'CLAIM' && <Sprout size={18} />}
-                      {act.type === 'REINVEST' && <RefreshCw size={18} />}
-                      {act.type === 'WITHDRAWAL' && <ArrowUpRight size={18} />}
+                      {isPositive ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                     </div>
 
                     <div>
@@ -223,16 +235,19 @@ const WalletPage = () => {
         onClaimSuccess={() => fetchWalletData()}
       />
 
-      {/* --- Deposit Payment Modal --- */}
-      <PaymentModal 
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        amount={5000}
-        onSuccess={() => {
-          setShowPaymentModal(false);
-          setShowSuccessModal(true);
-          fetchWalletData();
-        }}
+      {/* --- Add Money Modal --- */}
+      <AddMoneyModal
+        isOpen={showAddMoneyModal}
+        onClose={() => setShowAddMoneyModal(false)}
+        onSuccess={() => fetchWalletData()}
+      />
+
+      {/* --- Withdrawal Modal --- */}
+      <WithdrawalModal
+        isOpen={showWithdrawalModal}
+        onClose={() => setShowWithdrawalModal(false)}
+        availableBalance={availableCash}
+        onSuccess={() => fetchWalletData()}
       />
 
       <SuccessModal 

@@ -1,19 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Sprout, Wallet, BarChart2, User } from 'lucide-react';
+import { Home, Sprout, Wallet, Clock, User } from 'lucide-react';
 
 const BottomNav = () => {
   const navItems = [
     { path: '/', label: 'Home', icon: Home, exact: true },
     { path: '/plans', label: 'Growth', icon: Sprout },
     { path: '/wallet', label: 'Wallet', icon: Wallet },
-    { path: '/leaderboard', label: 'Insights', icon: BarChart2 },
+    { path: '/activity', label: 'Activity', icon: Clock },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
   return (
     <nav className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-      <div className="flex justify-between items-center px-6 py-2.5">
+      <div className="flex justify-between items-center px-5 py-2.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
