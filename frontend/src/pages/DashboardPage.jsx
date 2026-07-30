@@ -288,7 +288,47 @@ const DashboardPage = () => {
         onClose={() => setShowClaimModal(false)}
         unclaimedData={{ unclaimed_amount: unclaimedAmount, unclaimed_count: unclaimedCount, streak_count: streakCount }}
         currentAvailableCash={portfolio?.available_cash !== undefined ? portfolio.available_cash : 20421}
-        onClaimSuccess={() => fetchDashboardData()}
+        onClaimSuccess={(claimRes) => {
+          const claimedAmt = parseFloat(claimRes?.claimed_amount || unclaimedAmount || 42);
+          setDashboardData(prev => {
+            if (!prev) return prev;
+            const curInvested = prev.portfolio?.invested_amount !== undefined ? parseFloat(prev.portfolio.invested_amount) : 116510.00;
+            const curAvailable = prev.portfolio?.available_cash !== undefined ? parseFloat(prev.portfolio.available_cash) : 20421.00;
+            const curReturns = prev.portfolio?.total_returns !== undefined ? parseFloat(prev.portfolio.total_returns) : 18920.00;
+
+            const newAvailable = curAvailable + claimedAmt;
+            const newTotal = curInvested + newAvailable;
+            const newReturns = curReturns + claimedAmt;
+
+            const newNotifs = [
+              {
+                id: `claim-${Date.now()}`,
+                type: 'payout',
+                title: 'Daily Growth Claimed',
+                desc: `+₹${claimedAmt} growth reward claimed and credited to your Available Cash!`,
+                time: 'Just now',
+                unread: true
+              },
+              ...(prev.notifications || [])
+            ];
+            setNotificationsList(newNotifs);
+
+            return {
+              ...prev,
+              portfolio: {
+                ...prev.portfolio,
+                total_value: newTotal,
+                available_cash: newAvailable,
+                total_returns: newReturns,
+                unclaimed_amount: 0,
+                unclaimed_count: 0
+              },
+              notifications: newNotifs
+            };
+          });
+          fetchDashboardData();
+          setShowNotificationsModal(true);
+        }}
       />
 
       {/* --- Deposit Modal --- */}

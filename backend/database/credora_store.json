@@ -1095,15 +1095,15 @@
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 134932,
+      "total_value": 137015,
       "invested_amount": 116510,
-      "total_returns": 16921,
-      "available_cash": 20421,
-      "unclaimed_amount": 42,
-      "unclaimed_count": 1,
-      "streak_count": 18,
+      "total_returns": 17005,
+      "available_cash": 20505,
+      "unclaimed_amount": 0,
+      "unclaimed_count": 0,
+      "streak_count": 20,
       "auto_reinvest": 1,
-      "unclaimed_days": "[{\"day\":\"Monday\",\"amount\":42,\"date\":\"2026-07-27\"}]"
+      "unclaimed_days": "[]"
     },
     {
       "id": 2,
@@ -6308,6 +6308,24 @@
       "description": "Withdrawal to HDFC Bank (49218820391) - Approved by Karan Singh",
       "status": "COMPLETED",
       "created_at": "2026-07-30 10:04:14"
+    },
+    {
+      "id": 127,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:37:58"
+    },
+    {
+      "id": 128,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:42:21"
     }
   ],
   "bank_accounts": [
