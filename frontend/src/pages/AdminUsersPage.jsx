@@ -22,9 +22,8 @@ export default function AdminUsersPage() {
     try {
       setLoading(true);
       const res = await api.get('/admin/users');
-      if (res.data?.users) {
-        setUsers(res.data.users);
-      }
+      const userList = res?.data?.users || res?.users || (Array.isArray(res?.data) ? res.data : []);
+      setUsers(userList);
     } catch (err) {
       console.error('Error fetching admin users:', err);
     } finally {
