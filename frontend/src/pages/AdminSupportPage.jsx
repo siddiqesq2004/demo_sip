@@ -179,8 +179,12 @@ export default function AdminSupportPage() {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-bold text-white text-xs flex items-center gap-1.5">
-                        <User size={14} className={isSelected ? 'text-emerald-400' : 'text-credora-gold'} />
+                      <h4 className="font-bold text-white text-xs flex items-center gap-2">
+                        {chat.user_avatar ? (
+                          <img src={chat.user_avatar} alt={chat.user_name} className="w-6 h-6 rounded-full object-cover border border-amber-400/40" />
+                        ) : (
+                          <User size={14} className={isSelected ? 'text-emerald-400' : 'text-amber-400'} />
+                        )}
                         <span className={isSelected ? 'text-emerald-300 font-extrabold' : ''}>{chat.user_name}</span>
                       </h4>
                       <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
@@ -216,7 +220,11 @@ export default function AdminSupportPage() {
               <div className="bg-slate-950 p-4 border-b border-gray-800 flex justify-between items-center">
                 <div>
                   <h3 className="font-extrabold text-white text-sm flex items-center gap-2">
-                    <User size={16} className="text-emerald-400" />
+                    {activeChat.user_avatar ? (
+                      <img src={activeChat.user_avatar} alt={activeChat.user_name} className="w-8 h-8 rounded-full object-cover border border-emerald-400/50" />
+                    ) : (
+                      <User size={16} className="text-emerald-400" />
+                    )}
                     <span>Chatting with {activeChat.user_name}</span>
                     <span className="text-xs text-gray-400 font-mono">({activeChat.user_email})</span>
                   </h3>

@@ -198,21 +198,26 @@ async function getAdminWithdrawalsList(adminOrSubAdmin) {
     }
   }
 
-  return withdrawals.map(w => ({
-    id: w.id,
-    user_id: w.user_id,
-    user_name: w.user_name || 'Investor',
-    user_email: w.user_email || '',
-    amount: parseFloat(w.amount),
-    bank_name: w.bank_name,
-    account_no: w.account_no,
-    ifsc: w.ifsc,
-    remarks: w.remarks || 'Personal Savings',
-    status: w.status,
-    processed_by_name: w.processed_by_name || null,
-    created_at: w.created_at,
-    processed_at: w.processed_at || null
-  }));
+  const allUsers = await models.getAllUsersWithPortfolio();
+  return withdrawals.map(w => {
+    const userObj = allUsers.find(u => Number(u.id) === Number(w.user_id));
+    return {
+      id: w.id,
+      user_id: w.user_id,
+      user_name: w.user_name || userObj?.name || 'Investor',
+      user_email: w.user_email || userObj?.email || '',
+      user_avatar: userObj?.avatar_url || null,
+      amount: parseFloat(w.amount),
+      bank_name: w.bank_name,
+      account_no: w.account_no,
+      ifsc: w.ifsc,
+      remarks: w.remarks || 'Personal Savings',
+      status: w.status,
+      processed_by_name: w.processed_by_name || null,
+      created_at: w.created_at,
+      processed_at: w.processed_at || null
+    };
+  });
 }
 
 async function approveWithdrawalRequest(withdrawalId, adminOrSubAdmin) {
@@ -345,6 +350,7 @@ async function getAdminSupportChatsList(adminOrSubAdmin) {
       ...c,
       user_name: userObj ? userObj.name : (c.user_name || `User #${c.user_id}`),
       user_email: userObj ? userObj.email : (c.user_email || ''),
+      user_avatar: userObj ? userObj.avatar_url : null,
       last_message: lastMsg ? lastMsg.text : c.initial_query,
       latest_activity: latestTime
     });

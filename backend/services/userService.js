@@ -100,7 +100,8 @@ async function getDashboardData(userId) {
     user: {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      avatar_url: user.avatar_url || null
     },
     portfolio: {
       total_value: totalValue,
@@ -188,6 +189,7 @@ async function getUserProfile(userId) {
       id: user.id,
       name: user.name,
       email: user.email,
+      avatar_url: user.avatar_url || null,
       is_verified: true,
       member_since: user.created_at
     },

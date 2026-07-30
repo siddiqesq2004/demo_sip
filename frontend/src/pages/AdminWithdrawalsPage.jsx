@@ -167,8 +167,19 @@ export default function AdminWithdrawalsPage() {
                 filtered.map((w) => (
                   <tr key={w.id} className="hover:bg-slate-800/50 transition-colors">
                     <td className="p-4 font-bold text-white">
-                      <div>{w.user_name}</div>
-                      <span className="text-[10px] text-gray-500 font-mono">{w.user_email}</span>
+                      <div className="flex items-center gap-2.5">
+                        {w.user_avatar ? (
+                          <img src={w.user_avatar} alt={w.user_name} className="w-9 h-9 rounded-full object-cover border border-amber-400/40 shadow-sm flex-shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-amber-400/20 text-amber-300 font-extrabold flex items-center justify-center text-xs border border-amber-400/30 flex-shrink-0">
+                            {w.user_name ? w.user_name.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-white font-bold">{w.user_name}</div>
+                          <span className="text-[10px] text-gray-500 font-mono block">{w.user_email}</span>
+                        </div>
+                      </div>
                     </td>
 
                     <td className="p-4 font-extrabold text-white text-sm">

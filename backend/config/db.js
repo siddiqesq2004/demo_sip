@@ -422,6 +422,18 @@ function queryMemoryStore(sql, params = []) {
 
       saveJsonStore();
       return [{ affectedRows: 1 }];
+    } else if (upperSql.includes('UPDATE USERS')) {
+      const userId = params[params.length - 1];
+      const idx = memoryStore.users.findIndex(u => Number(u.id) === Number(userId));
+      if (idx !== -1) {
+        if (upperSql.includes('AVATAR_URL')) {
+          memoryStore.users[idx].avatar_url = params[0];
+        } else if (params[0] !== undefined) {
+          memoryStore.users[idx].name = params[0];
+        }
+        saveJsonStore();
+        return [{ affectedRows: 1 }];
+      }
     } else if (upperSql.includes('UPDATE WITHDRAWALS')) {
       const withdrawalId = params[params.length - 1];
       const idx = memoryStore.withdrawals.findIndex(w => Number(w.id) === Number(withdrawalId));
@@ -476,6 +488,9 @@ function queryMemoryStore(sql, params = []) {
       const rows = memoryStore.users.filter(u => Number(u.id) === Number(id));
       return [rows];
     }
+    if (upperSql.includes('FROM USERS')) {
+      return [memoryStore.users];
+    }
     if (upperSql.includes('FROM ADMINS WHERE EMAIL')) {
       const email = params[0];
       const rows = memoryStore.admins.filter(a => a.email.toLowerCase() === String(email).toLowerCase());
@@ -505,7 +520,8 @@ function queryMemoryStore(sql, params = []) {
         return {
           ...w,
           user_name: user.name || 'Investor',
-          user_email: user.email || ''
+          user_email: user.email || '',
+          user_avatar: user.avatar_url || null
         };
       }).sort((a, b) => b.id - a.id);
       return [rows];
@@ -527,8 +543,9 @@ function queryMemoryStore(sql, params = []) {
         const lastMsg = msgs[msgs.length - 1];
         return {
           ...c,
-          user_name: user.name || 'Investor',
-          user_email: user.email || '',
+          user_name: user.name || c.user_name || 'Investor',
+          user_email: user.email || c.user_email || '',
+          user_avatar: user.avatar_url || null,
           last_message: lastMsg ? lastMsg.text : c.initial_query,
           message_count: msgs.length
         };

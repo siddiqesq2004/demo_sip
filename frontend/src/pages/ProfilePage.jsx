@@ -3,7 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency } from '../utils/formatters';
 import api from '../services/api';
-import { X, CheckCircle, Copy, CreditCard, ShieldCheck, Share2, HelpCircle, Settings, Bell, Lock, Send, Plus, User as UserIcon } from 'lucide-react';
+import { X, CheckCircle, Copy, CreditCard, ShieldCheck, Share2, HelpCircle, Settings, Bell, Lock, Send, Plus, User as UserIcon, Camera, Upload, Image as ImageIcon } from 'lucide-react';
+
+const presetAvatars = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80'
+];
 
 const ProfilePage = () => {
   const { logoutUser } = useAuth();
@@ -13,11 +20,13 @@ const ProfilePage = () => {
 
   // Modal states: null | 'profile' | 'bank' | 'kyc' | 'refer' | 'support' | 'settings' | 'chat'
   const [activeModal, setActiveModal] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // 1. Dynamic User Name State
+  // 1. Dynamic User Name & Photo State
   const [userName, setUserName] = useState('');
+  const [profilePhoto, setProfilePhoto] = useState(localStorage.getItem('credora_user_avatar') || null);
   const [userPhone, setUserPhone] = useState('+91 98765 43210');
 
   // 2. Dynamic Bank Accounts State with Primary Toggle Capability
@@ -68,6 +77,10 @@ const ProfilePage = () => {
         if (profileData.user?.name) {
           setUserName(profileData.user.name);
         }
+        if (profileData.user?.avatar_url) {
+          setProfilePhoto(profileData.user.avatar_url);
+          localStorage.setItem('credora_user_avatar', profileData.user.avatar_url);
+        }
         if (resBanks.data && resBanks.data.bank_accounts) {
           setBankAccounts(resBanks.data.bank_accounts);
         }
@@ -80,6 +93,38 @@ const ProfilePage = () => {
     };
     fetchProfile();
   }, []);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('⚠️ Image file size must be less than 5MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        saveAvatar(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const saveAvatar = async (url) => {
+    setProfilePhoto(url);
+    if (url) {
+      localStorage.setItem('credora_user_avatar', url);
+    } else {
+      localStorage.removeItem('credora_user_avatar');
+    }
+    setShowAvatarModal(false);
+    showToast(url ? '📸 Profile photo updated successfully!' : '🗑️ Profile photo removed.');
+
+    try {
+      await api.post('/profile/avatar', { avatar_url: url });
+    } catch (err) {
+      console.error('Failed to sync avatar to backend:', err);
+    }
+  };
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -224,9 +269,22 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-[#F9FAFB] pb-24 text-[#101828]">
       {/* Header */}
       <div className="bg-[#062E23] pt-12 pb-8 px-4 rounded-b-3xl text-white relative">
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-[#D4AF37] to-yellow-600 rounded-full flex items-center justify-center text-white font-extrabold text-2xl shadow-lg border-2 border-white/20">
-            {userName ? userName.charAt(0).toUpperCase() : 'A'}
+        <div className="flex items-center space-x-3.5 mb-4">
+          <div className="relative group cursor-pointer flex-shrink-0" onClick={() => setShowAvatarModal(true)}>
+            {profilePhoto ? (
+              <img
+                src={profilePhoto}
+                alt="Profile Avatar"
+                className="w-16 h-16 rounded-full object-cover border-2 border-amber-400 shadow-md group-hover:opacity-90 transition-opacity"
+              />
+            ) : (
+              <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-yellow-600 rounded-full flex items-center justify-center text-white font-extrabold text-2xl shadow-lg border-2 border-white/20">
+                {userName ? userName.charAt(0).toUpperCase() : 'A'}
+              </div>
+            )}
+            <div className="absolute -bottom-1 -right-1 bg-[#00A859] text-white p-1.5 rounded-full shadow-md border border-white hover:scale-110 transition-transform">
+              <Camera size={12} />
+            </div>
           </div>
           <div>
             <h2 className="text-xl font-bold text-white flex items-center space-x-1.5">
@@ -670,6 +728,75 @@ const ProfilePage = () => {
             >
               Save Preferences
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 8. Profile Photo Upload & Preset Modal */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in duration-200 text-gray-900">
+            <button
+              onClick={() => setShowAvatarModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="text-center mb-5">
+              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-2 text-[#00A859] shadow-inner">
+                <Camera size={24} />
+              </div>
+              <h3 className="text-lg font-black text-gray-900">Update Profile Photo</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Visible to Admin & Sub-Admins for approvals and live chat</p>
+            </div>
+
+            {/* Current Preview */}
+            <div className="flex justify-center mb-5">
+              {profilePhoto ? (
+                <img src={profilePhoto} alt="Current Preview" className="w-20 h-20 rounded-full object-cover border-4 border-[#00A859] shadow-lg" />
+              ) : (
+                <div className="w-20 h-20 bg-gradient-to-br from-[#D4AF37] to-yellow-600 rounded-full flex items-center justify-center text-white font-extrabold text-3xl shadow-lg">
+                  {userName ? userName.charAt(0).toUpperCase() : 'A'}
+                </div>
+              )}
+            </div>
+
+            {/* Upload File Input */}
+            <label className="w-full bg-[#062E23] hover:bg-[#084232] text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all mb-4 active:scale-95">
+              <Upload size={16} />
+              <span>Upload Photo from Device</span>
+              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+            </label>
+
+            {/* Presets Divider */}
+            <div className="relative flex py-2 items-center">
+              <div className="flex-grow border-t border-gray-200"></div>
+              <span className="flex-shrink mx-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Or Choose Avatar</span>
+              <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            {/* Preset Grid */}
+            <div className="grid grid-cols-4 gap-3 my-3">
+              {presetAvatars.map((url, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => saveAvatar(url)}
+                  className="w-14 h-14 rounded-full overflow-hidden border-2 border-transparent hover:border-[#00A859] hover:scale-105 transition-all shadow-sm focus:outline-none"
+                >
+                  <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+
+            {profilePhoto && (
+              <button
+                onClick={() => saveAvatar(null)}
+                className="w-full text-red-500 font-extrabold text-xs py-2 hover:bg-red-50 rounded-xl transition-colors mt-2"
+              >
+                Remove Custom Photo
+              </button>
+            )}
           </div>
         </div>
       )}

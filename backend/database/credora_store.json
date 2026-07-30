@@ -5,7 +5,8 @@
       "name": "Anish P",
       "email": "anishp@email.com",
       "password": "$2a$10$Xp25ZnW/irs2Q.DRMPxvKOyHZgW7eOJU0PaswMa3qKlf6bn43pFh2",
-      "created_at": "2026-07-27 11:01:36"
+      "created_at": "2026-07-27 11:01:36",
+      "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
     },
     {
       "id": 2,
@@ -1078,15 +1079,25 @@
       "target_user_id": 44,
       "target_user_name": "Priya Sharma",
       "created_at": "2026-07-30 09:55:26"
+    },
+    {
+      "id": 69,
+      "subadmin_id": 1,
+      "subadmin_name": "Karan Singh",
+      "action_type": "WITHDRAWAL_APPROVAL",
+      "description": "Approved payout of ₹1,999 to HDFC Bank for User",
+      "target_user_id": 1,
+      "target_user_name": null,
+      "created_at": "2026-07-30 10:04:14"
     }
   ],
   "portfolio": [
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 136931,
+      "total_value": 134932,
       "invested_amount": 116510,
-      "total_returns": 18920,
+      "total_returns": 16921,
       "available_cash": 20421,
       "unclaimed_amount": 42,
       "unclaimed_count": 1,
@@ -4588,11 +4599,11 @@
       "bank_name": "HDFC Bank",
       "account_no": "49218820391",
       "ifsc": "HDFC0001234",
-      "status": "PENDING_APPROVAL",
-      "processed_by_subadmin_id": null,
-      "processed_by_name": null,
+      "status": "APPROVED",
+      "processed_by_subadmin_id": 1,
+      "processed_by_name": "Karan Singh",
       "created_at": "2026-07-30 04:26:37",
-      "processed_at": null,
+      "processed_at": "2026-07-30 10:04:14",
       "remarks": "Savings"
     }
   ],
@@ -4684,10 +4695,10 @@
     {
       "id": 10,
       "user_id": 19,
-      "subadmin_id": 2,
-      "subadmin_name": "Awaiting Free Official",
+      "subadmin_id": 3,
+      "subadmin_name": "Amit Kumar",
       "initial_query": "Hi, when will my daily 1% payout arrive today?",
-      "status": "OPEN",
+      "status": "IN_CONVERSATION",
       "created_at": "2026-07-25 11:00:00"
     },
     {
@@ -4711,10 +4722,10 @@
     {
       "id": 13,
       "user_id": 25,
-      "subadmin_id": 2,
-      "subadmin_name": "Awaiting Free Official",
+      "subadmin_id": 3,
+      "subadmin_name": "Amit Kumar",
       "initial_query": "Hi, when will my daily 1% payout arrive today?",
-      "status": "OPEN",
+      "status": "IN_CONVERSATION",
       "created_at": "2026-07-25 11:00:00"
     },
     {
@@ -4738,10 +4749,10 @@
     {
       "id": 16,
       "user_id": 31,
-      "subadmin_id": 2,
-      "subadmin_name": "Awaiting Free Official",
+      "subadmin_id": 3,
+      "subadmin_name": "Amit Kumar",
       "initial_query": "Hi, when will my daily 1% payout arrive today?",
-      "status": "OPEN",
+      "status": "IN_CONVERSATION",
       "created_at": "2026-07-25 11:00:00"
     },
     {
@@ -4765,10 +4776,10 @@
     {
       "id": 19,
       "user_id": 37,
-      "subadmin_id": 2,
-      "subadmin_name": "Awaiting Free Official",
+      "subadmin_id": 3,
+      "subadmin_name": "Amit Kumar",
       "initial_query": "Hi, when will my daily 1% payout arrive today?",
-      "status": "OPEN",
+      "status": "IN_CONVERSATION",
       "created_at": "2026-07-25 11:00:00"
     },
     {
@@ -4792,10 +4803,10 @@
     {
       "id": 22,
       "user_id": 43,
-      "subadmin_id": 2,
-      "subadmin_name": "Awaiting Free Official",
+      "subadmin_id": 3,
+      "subadmin_name": "Amit Kumar",
       "initial_query": "Hi, when will my daily 1% payout arrive today?",
-      "status": "OPEN",
+      "status": "IN_CONVERSATION",
       "created_at": "2026-07-25 11:00:00"
     },
     {
@@ -6288,6 +6299,15 @@
       "description": "+ Added ₹5,000 to Available Cash via UPI (GPay / PhonePe / Paytm)",
       "status": "COMPLETED",
       "created_at": "2026-07-30 09:57:14"
+    },
+    {
+      "id": 126,
+      "user_id": 1,
+      "type": "WITHDRAWAL",
+      "amount": 1999,
+      "description": "Withdrawal to HDFC Bank (49218820391) - Approved by Karan Singh",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:04:14"
     }
   ],
   "bank_accounts": [

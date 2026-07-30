@@ -38,6 +38,20 @@ async function getProfile(req, res) {
   }
 }
 
+async function updateAvatar(req, res) {
+  try {
+    const userId = req.user.id;
+    const { avatar_url } = req.body;
+    if (!avatar_url) {
+      return sendError(res, 'Avatar image URL or data is required');
+    }
+    await models.updateUserAvatar(userId, avatar_url);
+    return sendSuccess(res, 'Profile photo updated successfully', { avatar_url });
+  } catch (err) {
+    return sendError(res, 'Failed to update profile photo', err.message, 500);
+  }
+}
+
 async function requestWithdrawal(req, res) {
   try {
     const { amount, bank_name, account_no, ifsc, remarks } = req.body;
@@ -356,6 +370,7 @@ module.exports = {
   getPortfolio,
   getActivity,
   getProfile,
+  updateAvatar,
   requestWithdrawal,
   getSupportMessages,
   sendSupportMessage,

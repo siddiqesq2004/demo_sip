@@ -7,8 +7,12 @@ async function findUserByEmail(email) {
 }
 
 async function findUserById(id) {
-  const [rows] = await query('SELECT id, name, email, created_at FROM users WHERE id = ?', [id]);
+  const [rows] = await query('SELECT id, name, email, avatar_url, created_at FROM users WHERE id = ?', [id]);
   return rows.length > 0 ? rows[0] : null;
+}
+
+async function updateUserAvatar(userId, avatarUrl) {
+  await query('UPDATE users SET avatar_url = ? WHERE id = ?', [avatarUrl, userId]);
 }
 
 async function findAdminByEmail(email) {
@@ -384,7 +388,7 @@ async function createTransaction(userId, type, amount, description, status = 'CO
 // --- Admin Queries ---
 async function getAllUsersWithPortfolio() {
   const [rows] = await query(
-    `SELECT u.id, u.name, u.email, u.created_at, 
+    `SELECT u.id, u.name, u.email, u.avatar_url, u.created_at, 
             COALESCE(p.total_value, 0) as total_value, 
             COALESCE(p.invested_amount, 0) as invested_amount, 
             COALESCE(p.total_returns, 0) as total_returns,
@@ -431,6 +435,7 @@ async function setUserPrimaryBankAccount(userId, bankAccountId) {
 module.exports = {
   findUserByEmail,
   findUserById,
+  updateUserAvatar,
   findAdminByEmail,
   getAllSubAdmins,
   updateSubAdminStatus,

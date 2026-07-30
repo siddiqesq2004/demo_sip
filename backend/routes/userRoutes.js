@@ -7,6 +7,7 @@ router.get('/dashboard', authenticateUser, userController.getDashboard);
 router.get('/portfolio', authenticateUser, userController.getPortfolio);
 router.get('/activity', authenticateUser, userController.getActivity);
 router.get('/profile', authenticateUser, userController.getProfile);
+router.post('/profile/avatar', authenticateUser, userController.updateAvatar);
 router.post('/withdraw', authenticateUser, userController.requestWithdrawal);
 
 // Support Chat Endpoints
