@@ -173,27 +173,27 @@ const LeaderboardPage = () => {
 
           <div className="space-y-2">
             {restList.map((usr, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/70 hover:bg-gray-100/80 transition-colors">
-                <div className="flex items-center gap-3">
-                  <span className="font-extrabold text-gray-400 text-xs w-5 text-center">#{usr.rank}</span>
-                  <div className="w-10 h-10 rounded-full bg-[#062E23] text-amber-300 font-bold flex items-center justify-center text-sm shadow-sm">
+              <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/70 hover:bg-gray-100/80 transition-colors gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <span className="font-extrabold text-gray-400 text-xs w-5 text-center flex-shrink-0">#{usr.rank}</span>
+                  <div className="w-10 h-10 rounded-full bg-[#062E23] text-amber-300 font-bold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
                     {usr.avatar}
                   </div>
-                  <div>
-                    <div className="text-sm font-extrabold text-gray-900">{usr.name}</div>
-                    <div className="text-[11px] font-medium text-gray-400">Total Returns: ₹{usr.total_returns.toLocaleString('en-IN')}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-extrabold text-gray-900 truncate">{usr.name}</div>
+                    <div className="text-[11px] font-medium text-gray-400 truncate">Total Returns: ₹{usr.total_returns.toLocaleString('en-IN')}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm flex-shrink-0 whitespace-nowrap">
                   {activeTab === 'streaks' ? (
                     <>
-                      <Flame size={14} className="text-orange-500 fill-orange-500" />
+                      <Flame size={14} className="text-orange-500 fill-orange-500 flex-shrink-0" />
                       <span className="text-xs font-black text-gray-900">{usr.streak_count} Days</span>
                     </>
                   ) : (
                     <>
-                      <Users size={14} className="text-emerald-600" />
+                      <Users size={14} className="text-[#00A859] flex-shrink-0" />
                       <span className="text-xs font-black text-gray-900">{usr.referral_count} Ref</span>
                     </>
                   )}
