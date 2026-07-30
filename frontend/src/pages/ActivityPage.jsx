@@ -144,27 +144,34 @@ const ActivityPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      {/* Header */}
-      <header className="px-4 pt-12 pb-4 sticky top-0 bg-white z-10 border-b border-gray-100">
-        <h1 className="text-2xl font-bold text-[#101828]">Activity</h1>
-      </header>
+    <div className="min-h-screen bg-[#F9FAFB] pb-24 text-gray-900">
+      
+      {/* Sticky Header & Filter Bar */}
+      <div className="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-gray-100 shadow-xs">
+        {/* Header Title */}
+        <div className="px-5 pt-12 pb-2 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">History</span>
+            <h1 className="text-2xl font-black text-[#062E23] tracking-tight">Activity</h1>
+          </div>
+        </div>
 
-      {/* Filter Pills */}
-      <div className="px-4 py-3 flex overflow-x-auto space-x-2 scrollbar-hide border-b border-gray-100 bg-white sticky top-[68px] z-10">
-        {filters.map(filter => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
-              activeFilter === filter
-                ? 'bg-[#062E23] text-white border border-[#062E23] shadow-sm'
-                : 'bg-white text-[#667085] border border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
+        {/* Filter Pills */}
+        <div className="px-5 pb-3 pt-1 flex items-center space-x-2 overflow-x-auto scrollbar-hide">
+          {filters.map(filter => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-2 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${
+                activeFilter === filter
+                  ? 'bg-[#062E23] text-white shadow-md shadow-emerald-900/10'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200/70'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Activity List */}
