@@ -287,6 +287,7 @@ const DashboardPage = () => {
         isOpen={showClaimModal}
         onClose={() => setShowClaimModal(false)}
         unclaimedData={{ unclaimed_amount: unclaimedAmount, unclaimed_count: unclaimedCount, streak_count: streakCount }}
+        currentAvailableCash={portfolio?.available_cash !== undefined ? portfolio.available_cash : 20421}
         onClaimSuccess={() => fetchDashboardData()}
       />
 

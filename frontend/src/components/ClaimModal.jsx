@@ -3,7 +3,7 @@ import { X, Check, Flame, Sparkles, ChevronRight, CheckCircle2 } from 'lucide-re
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 
-const ClaimModal = ({ isOpen, onClose, unclaimedData, onClaimSuccess }) => {
+const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash = 2420, onClaimSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [claimed, setClaimed] = useState(false);
 
@@ -17,6 +17,8 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, onClaimSuccess }) => {
     { day: 'Wednesday', amount: 42, date: '2026-07-29' }
   ];
   const currentStreak = unclaimedData?.streak_count || 18;
+  const currentCash = parseFloat(currentAvailableCash || 2420);
+  const newCash = currentCash + amount;
 
   const handleClaim = async () => {
     try {
@@ -177,12 +179,12 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, onClaimSuccess }) => {
             <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-5 flex items-center justify-between">
               <div className="text-center flex-1 border-r border-gray-100 pr-2">
                 <span className="text-[11px] font-semibold text-gray-400 uppercase">Current Balance</span>
-                <div className="text-base font-extrabold text-gray-800">₹5,800</div>
+                <div className="text-base font-extrabold text-gray-800">₹{currentCash.toLocaleString('en-IN')}</div>
               </div>
               <div className="px-3 text-emerald-600 font-black">➔</div>
               <div className="text-center flex-1 pl-2">
                 <span className="text-[11px] font-semibold text-[#00A859] uppercase">New Balance</span>
-                <div className="text-base font-extrabold text-[#00A859]">₹5,842</div>
+                <div className="text-base font-extrabold text-[#00A859]">₹{newCash.toLocaleString('en-IN')}</div>
               </div>
             </div>
 
