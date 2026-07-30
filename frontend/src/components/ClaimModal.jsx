@@ -3,7 +3,7 @@ import { X, Check, Flame, Sparkles, ChevronRight, CheckCircle2 } from 'lucide-re
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 
-const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash = 2420, onClaimSuccess }) => {
+const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onClaimSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [claimed, setClaimed] = useState(false);
 
@@ -17,7 +17,7 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash = 242
     { day: 'Wednesday', amount: 42, date: '2026-07-29' }
   ];
   const currentStreak = unclaimedData?.streak_count || 18;
-  const currentCash = parseFloat(currentAvailableCash || 2420);
+  const currentCash = parseFloat(currentAvailableCash !== undefined ? currentAvailableCash : (unclaimedData?.available_cash !== undefined ? unclaimedData.available_cash : 20505));
   const newCash = currentCash + amount;
 
   const handleClaim = async () => {

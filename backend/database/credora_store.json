@@ -1095,13 +1095,13 @@
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 137015,
+      "total_value": 137225,
       "invested_amount": 116510,
-      "total_returns": 17005,
-      "available_cash": 20505,
-      "unclaimed_amount": 42,
-      "unclaimed_count": 1,
-      "streak_count": 20,
+      "total_returns": 17215,
+      "available_cash": 20715,
+      "unclaimed_amount": 0,
+      "unclaimed_count": 0,
+      "streak_count": 25,
       "auto_reinvest": 1,
       "unclaimed_days": "[]"
     },
@@ -7064,6 +7064,51 @@
       "description": "🌱 Growth Claimed (+₹42)",
       "status": "COMPLETED",
       "created_at": "2026-07-30 10:42:21"
+    },
+    {
+      "id": 129,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:51:15"
+    },
+    {
+      "id": 130,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:55:40"
+    },
+    {
+      "id": 131,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:55:47"
+    },
+    {
+      "id": 132,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:55:55"
+    },
+    {
+      "id": 133,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-07-30 10:56:02"
     }
   ],
   "bank_accounts": [

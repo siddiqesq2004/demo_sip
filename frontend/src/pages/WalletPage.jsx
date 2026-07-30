@@ -281,7 +281,24 @@ const WalletPage = () => {
         isOpen={showClaimModal}
         onClose={() => setShowClaimModal(false)}
         unclaimedData={walletData}
-        onClaimSuccess={() => fetchWalletData()}
+        currentAvailableCash={availableCash}
+        onClaimSuccess={(claimRes) => {
+          const claimedAmt = parseFloat(claimRes?.claimed_amount || 42);
+          setWalletData(prev => {
+            if (!prev) return prev;
+            const curAvail = parseFloat(prev.available_cash || 20505);
+            const curInvested = parseFloat(prev.currently_invested || 116510);
+            const newAvail = curAvail + claimedAmt;
+            return {
+              ...prev,
+              available_cash: newAvail,
+              wallet_balance: curInvested + newAvail,
+              unclaimed_amount: 0,
+              unclaimed_count: 0
+            };
+          });
+          fetchWalletData();
+        }}
       />
 
       {/* --- Add Money Modal --- */}
