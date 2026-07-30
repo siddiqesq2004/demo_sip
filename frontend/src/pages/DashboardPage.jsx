@@ -245,24 +245,30 @@ const DashboardPage = () => {
         {/* --- Community Leaderboard Banner --- */}
         <div 
           onClick={() => navigate('/leaderboard')}
-          className="bg-gradient-to-r from-[#062E23] to-[#0B3B2F] rounded-3xl p-4.5 text-white shadow-md flex items-center justify-between cursor-pointer hover:shadow-lg transition-all group"
+          className="bg-gradient-to-r from-[#062E23] via-[#0B3B2F] to-[#042018] rounded-3xl p-4 text-white shadow-lg border border-emerald-800/40 flex items-center justify-between cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-all group relative overflow-hidden"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/30 rounded-2xl flex items-center justify-center text-amber-300">
-              <Trophy size={24} className="fill-amber-400 text-amber-400" />
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-11 h-11 bg-amber-400/15 border border-amber-400/30 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner">
+              <Trophy size={22} className="fill-amber-400 text-amber-400" />
             </div>
-            <div>
-              <div className="text-xs font-bold text-emerald-300 uppercase tracking-wider">Investor Leaderboard</div>
-              <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                <span>Top Investor Rankings</span>
-                <span className="text-[10px] bg-amber-400 text-[#062E23] px-2 py-0.5 rounded-full font-black">Rank #1 🔥</span>
+
+            <div className="min-w-0 space-y-0.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider">Investor Leaderboard</span>
+                <span className="bg-amber-400 text-[#062E23] text-[9px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
+                  <span>Rank #1</span>
+                  <span>🔥</span>
+                </span>
               </div>
+              <div className="text-sm font-extrabold text-white truncate">Top Investor Rankings</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 text-emerald-300 font-bold text-xs group-hover:translate-x-1 transition-transform">
-            <span>View Ranks</span>
-            <ChevronRight size={16} />
+          <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs flex-shrink-0 pl-2 group-hover:translate-x-1 transition-transform">
+            <span className="hidden sm:inline">View Ranks</span>
+            <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center text-emerald-300 group-hover:bg-[#00A859] group-hover:text-white transition-colors">
+              <ChevronRight size={16} />
+            </div>
           </div>
         </div>
 
