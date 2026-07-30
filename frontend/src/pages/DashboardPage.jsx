@@ -52,7 +52,7 @@ const DashboardPage = () => {
   if (loading) return <Loader fullScreen message="Loading Credora Growth Engine..." />;
 
   const user = dashboardData?.user || { name: 'Anish P' };
-  const portfolio = dashboardData?.portfolio || { total_value: 118930.00, invested_amount: 116510.00, total_returns: 18920.00 };
+  const portfolio = dashboardData?.portfolio || { total_value: 137015.00, invested_amount: 116510.00, available_cash: 20505.00, total_returns: 17005.00 };
   const activeCycle = dashboardData?.active_cycle || { current_day: 14, total_days: 22, days_left: 8, plan_name: '22-Day Growth Cycle' };
   const unclaimedAmount = dashboardData?.unclaimed_amount || 42.00;
   const unclaimedCount = dashboardData?.unclaimed_count || 1;
@@ -287,7 +287,7 @@ const DashboardPage = () => {
         isOpen={showClaimModal}
         onClose={() => setShowClaimModal(false)}
         unclaimedData={{ unclaimed_amount: unclaimedAmount, unclaimed_count: unclaimedCount, streak_count: streakCount }}
-        currentAvailableCash={portfolio?.available_cash !== undefined ? portfolio.available_cash : 20421}
+        currentAvailableCash={portfolio?.available_cash !== undefined ? portfolio.available_cash : 20505}
         onClaimSuccess={(claimRes) => {
           const claimedAmt = parseFloat(claimRes?.claimed_amount || unclaimedAmount || 42);
           setDashboardData(prev => {

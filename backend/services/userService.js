@@ -92,8 +92,8 @@ async function getDashboardData(userId) {
   });
 
   const investedAmount = parseFloat(portfolio.invested_amount || 116510);
-  const totalReturns = parseFloat(portfolio.total_returns || 18920);
-  const availableCash = parseFloat(portfolio.available_cash !== undefined ? portfolio.available_cash : 2420.00);
+  const totalReturns = parseFloat(portfolio.total_returns || 17005);
+  const availableCash = parseFloat(portfolio.available_cash !== undefined ? portfolio.available_cash : 20505.00);
   const totalValue = investedAmount + availableCash;
 
   return {
