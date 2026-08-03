@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency } from '../utils/formatters';
 import api from '../services/api';
-import { X, CheckCircle, Copy, CreditCard, ShieldCheck, Share2, HelpCircle, Settings, Bell, Lock, Send, Plus, User as UserIcon, Camera, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, CheckCircle, Copy, CreditCard, ShieldCheck, Share2, HelpCircle, Settings, Bell, Lock, Send, Plus, User as UserIcon, Camera, Upload, Image as ImageIcon, Sprout, Clock } from 'lucide-react';
 
 const presetAvatars = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
@@ -46,7 +46,7 @@ const ProfilePage = () => {
   // 4. Dynamic Live Support Chat State (Auto-connected to Free Sub-Admin)
   const [assignedSubadminName, setAssignedSubadminName] = useState('Free Official');
   const [chatMessages, setChatMessages] = useState([
-    { id: 1, sender: 'bot', text: '🟢 Connected to Free Sub-Admin Specialist. How can I assist you with your investment growth cycle or payouts today?', time: 'Just now' }
+    { id: 1, sender: 'bot', text: '🟢 Connected to Free Sub-Admin Specialist. How can I assist you with your investment growth plan or payouts today?', time: 'Just now' }
   ]);
   const [inputChatMsg, setInputChatMsg] = useState('');
 
@@ -328,6 +328,8 @@ const ProfilePage = () => {
       <div className="px-4 mt-6 space-y-3">
         {[
           { id: 'profile', icon: UserIcon, title: 'User Profile Details', subtitle: userName || 'Anish P' },
+          { id: 'plans', icon: Sprout, title: 'Growth Plans', subtitle: 'Explore investment plans', route: '/plans' },
+          { id: 'activity', icon: Clock, title: 'Activity History', subtitle: 'View all your transactions', route: '/activity' },
           { id: 'bank', icon: CreditCard, title: 'Bank Details', subtitle: `Manage linked bank accounts (${bankAccounts.length})` },
           { id: 'kyc', icon: ShieldCheck, title: 'KYC Verification', subtitle: 'Your identity is verified' },
           { id: 'refer', icon: Share2, title: 'Refer & Earn', subtitle: 'Invite friends and earn rewards' },
@@ -338,7 +340,7 @@ const ProfilePage = () => {
           return (
             <div
               key={menu.id}
-              onClick={() => setActiveModal(menu.id)}
+              onClick={() => menu.route ? navigate(menu.route) : setActiveModal(menu.id)}
               className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs hover:border-emerald-200 transition-colors cursor-pointer card-press"
             >
               <div className="flex items-center space-x-3.5">
@@ -555,7 +557,7 @@ const ProfilePage = () => {
             <div className="bg-gradient-to-br from-[#062E23] to-[#0B3B2F] rounded-2xl p-5 text-white mb-4 text-center">
               <p className="text-xs text-emerald-200 uppercase font-semibold mb-1">Invite Friends</p>
               <h4 className="text-xl font-bold mb-2">Earn ₹500 Per Referral</h4>
-              <p className="text-xs text-gray-200">When your friend starts their first 22-day investment growth cycle.</p>
+              <p className="text-xs text-gray-200">When your friend starts their first 22-day investment growth plan.</p>
             </div>
 
             <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-200 flex items-center justify-between mb-4">

@@ -1,4 +1,5 @@
 const models = require('../models');
+const marketRateService = require('./marketRateService');
 
 async function getDashboardData(userId) {
   const user = await models.findUserById(userId);
@@ -13,7 +14,9 @@ async function getDashboardData(userId) {
   const userWithdrawals = await models.getUserWithdrawals(userId);
   
   // Calculate today's earnings dynamically based on active investments (1% daily rate assumption)
-  const todayEarning = activePlan ? (parseFloat(activePlan.amount) * 0.01) : (parseFloat(portfolio.invested_amount) * 0.01);
+  const marketRate = await marketRateService.getTodayRate();
+  const todayRate = marketRate.rate || 0.78;
+  const todayEarning = activePlan ? (parseFloat(activePlan.amount) * todayRate / 100) : (parseFloat(portfolio.invested_amount) * todayRate / 100);
 
   // Generate dynamic notifications
   const notifications = [];
@@ -114,8 +117,9 @@ async function getDashboardData(userId) {
     },
     today_earning: {
       amount: todayEarning.toFixed(2),
-      percent: 1.00
+      percent: todayRate
     },
+    market_rate: marketRate,
     active_cycle: activePlan ? {
       id: activePlan.id,
       plan_name: activePlan.plan_name,
@@ -125,7 +129,8 @@ async function getDashboardData(userId) {
       progress_percent: Math.round((activePlan.current_day / activePlan.duration_days) * 100),
       invested: parseFloat(activePlan.amount),
       returns_earned: (parseFloat(activePlan.amount) * 0.01 * activePlan.current_day).toFixed(2),
-      next_payout_date: '28 July 2026' // Dynamic calculation indicator
+      next_payout_date: '28 July 2026', // Dynamic calculation indicator
+      today_rate: todayRate
     } : null,
     recent_transactions: transactions.slice(0, 5),
     notifications: notifications.slice(0, 8)

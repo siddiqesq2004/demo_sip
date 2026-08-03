@@ -27,4 +27,8 @@ router.get('/support/messages/:chatId', authenticateAdmin, adminController.getSu
 router.post('/support/reply', authenticateAdmin, adminController.sendSupportReply);
 router.post('/support/resolve', authenticateAdmin, adminController.resolveSupportChat);
 
+// Market Rate Control
+router.get('/market-rate', authenticateAdmin, adminController.getMarketRateAdmin);
+router.post('/market-rate', authenticateAdmin, adminController.setMarketRateAdmin);
+
 module.exports = router;

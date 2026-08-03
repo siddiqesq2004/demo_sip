@@ -83,7 +83,7 @@ const InvestPage = () => {
 
         <div>
           <h2 className="text-2xl font-bold mb-1">{activePlan.name}</h2>
-          <p className="text-emerald-200 text-xs">Choose amount to start your growth cycle</p>
+          <p className="text-emerald-200 text-xs">Choose amount to start your growth plan</p>
         </div>
       </div>
 
@@ -232,7 +232,7 @@ const InvestPage = () => {
                 <span className="font-bold text-[#00A859]">+{activePlan.return_percentage}% Daily</span>
               </div>
               <div className="flex justify-between text-[#667085]">
-                <span>Cycle Duration:</span>
+                <span>Plan Duration:</span>
                 <span className="font-bold text-[#101828]">{activePlan.duration_days} Working Days</span>
               </div>
             </div>

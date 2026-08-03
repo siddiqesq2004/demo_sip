@@ -90,3 +90,12 @@ ON CONFLICT (email) DO NOTHING;
 INSERT INTO portfolio (user_id, total_value, invested_amount, total_returns) VALUES
 (1, 125430.00, 106510.00, 18920.00)
 ON CONFLICT DO NOTHING;
+
+-- Market Rates Table
+CREATE TABLE IF NOT EXISTS market_rates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  rate_date DATE NOT NULL UNIQUE,
+  rate_percentage DECIMAL(4,2) NOT NULL,
+  set_by VARCHAR(100) DEFAULT 'SYSTEM',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

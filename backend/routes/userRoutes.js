@@ -18,7 +18,7 @@ router.post('/support/message', authenticateUser, userController.sendSupportMess
 router.post('/claim-growth', authenticateUser, userController.claimGrowth);
 router.get('/wallet', authenticateUser, userController.getWallet);
 router.post('/wallet/deposit', authenticateUser, userController.depositWallet);
-router.post('/wallet/auto-reinvest', authenticateUser, userController.handleToggleAutoReinvest);
+router.get('/market-rate', authenticateUser, userController.getMarketRate);
 router.get('/leaderboard', authenticateUser, userController.getLeaderboard);
 
 // Bank Accounts Endpoints

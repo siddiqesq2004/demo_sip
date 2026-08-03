@@ -1,6 +1,7 @@
 const adminService = require('../services/adminService');
 const models = require('../models');
 const { sendSuccess, sendError } = require('../utils/responseHandler');
+const marketRateService = require('../services/marketRateService');
 
 async function getAdminDashboard(req, res) {
   try {
@@ -198,6 +199,32 @@ async function resolveSupportChat(req, res) {
   }
 }
 
+async function getMarketRateAdmin(req, res) {
+  try {
+    const rate = await marketRateService.getTodayRate();
+    const history = await marketRateService.getRateHistory(14);
+    return sendSuccess(res, 'Market rate data retrieved', { today: rate, history: history });
+  } catch (err) {
+    return sendError(res, 'Failed to fetch market rate data', err.message, 500);
+  }
+}
+
+async function setMarketRateAdmin(req, res) {
+  try {
+    const { date, rate } = req.body;
+    const marketRateSvc = require('../services/marketRateService');
+    const dateStr = date || marketRateSvc.getTodayDateStr();
+    const rateVal = parseFloat(rate);
+    if (isNaN(rateVal) || rateVal < 0.50 || rateVal > 1.00) {
+      return sendError(res, 'Rate must be between 0.50 and 1.00');
+    }
+    const result = await marketRateSvc.setDailyRate(dateStr, rateVal, req.admin?.name || 'Super Admin');
+    return sendSuccess(res, `Market rate for ${dateStr} set to ${rateVal}%`, result);
+  } catch (err) {
+    return sendError(res, 'Failed to set market rate', err.message, 500);
+  }
+}
+
 module.exports = {
   getAdminDashboard,
   getAdminUsers,
@@ -213,5 +240,7 @@ module.exports = {
   getSupportChats,
   getSupportMessages,
   sendSupportReply,
-  resolveSupportChat
+  resolveSupportChat,
+  getMarketRateAdmin,
+  setMarketRateAdmin
 };

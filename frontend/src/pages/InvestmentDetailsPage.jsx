@@ -76,7 +76,7 @@ const InvestmentDetailsPage = () => {
               </div>
               <div>
                 <p className="font-semibold text-[#101828] text-sm">Invest any amount</p>
-                <p className="text-xs text-[#667085] mt-0.5">Start your growth cycle</p>
+                <p className="text-xs text-[#667085] mt-0.5">Start your growth plan</p>
               </div>
             </div>
             <div className="flex items-start">

@@ -13,9 +13,9 @@ const InvestmentPlansPage = () => {
   const navigate = useNavigate();
 
   const demoPlansFallback = [
-    { id: 1, name: '22 Day Growth Plan', return_percentage: 1.0, duration_days: 22, min_amount: 5000, description: 'Earn 1% daily returns every working day (Mon-Fri) for 22 working days.' },
-    { id: 2, name: '45 Day Accelerator Plan', return_percentage: 1.2, duration_days: 45, min_amount: 10000, description: 'Accelerated 1.2% daily growth cycle with compounding potential.' },
-    { id: 3, name: '90 Day Wealth Empire', return_percentage: 1.5, duration_days: 90, min_amount: 25000, description: 'Maximum 1.5% daily return strategy for long-term investors.' }
+    { id: 1, name: '22 Day Growth Plan', return_percentage: 1.0, duration_days: 22, min_amount: 5000, description: 'Earn market-linked daily returns every working day (Mon-Fri) for 22 working days.' },
+    { id: 2, name: '45 Day Accelerator Plan', return_percentage: 1.2, duration_days: 45, min_amount: 10000, description: 'Accelerated market-linked daily growth plan with enhanced return potential.' },
+    { id: 3, name: '90 Day Wealth Empire', return_percentage: 1.5, duration_days: 90, min_amount: 25000, description: 'Premium market-linked returns for long-term investors. Higher potential daily yields.' }
   ];
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const InvestmentPlansPage = () => {
               <h2 className={`text-lg font-black ${stage.color}`}>{stage.label}</h2>
             </div>
             <div className="text-right">
-              <span className="text-[10px] text-gray-400 font-medium block">Cycle Day</span>
+              <span className="text-[10px] text-gray-400 font-medium block">Plan Day</span>
               <span className="text-xl font-black text-white">{currentDay}<span className="text-xs font-bold text-emerald-400"> / 22</span></span>
             </div>
           </div>

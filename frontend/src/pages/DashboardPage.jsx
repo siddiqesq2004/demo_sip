@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Eye, EyeOff, Plus, ArrowUpRight, Clock, Info, Sprout, ChevronRight, Flame, Sparkles, Trophy } from 'lucide-react';
+import { Bell, Eye, EyeOff, Plus, ArrowUpRight, Clock, Info, Sprout, ChevronRight, Flame, Sparkles, Trophy, TrendingUp } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 import Loader from '../components/Loader';
@@ -49,14 +49,15 @@ const DashboardPage = () => {
     setNotificationsList(prev => prev.map(n => ({ ...n, unread: false })));
   };
 
-  if (loading) return <Loader fullScreen message="Loading Credora Growth Engine..." />;
+  if (loading) return <Loader fullScreen message="Loading Dashboard..." />;
 
   const user = dashboardData?.user || { name: 'Anish P' };
   const portfolio = dashboardData?.portfolio || { total_value: 137015.00, invested_amount: 116510.00, available_cash: 20505.00, total_returns: 17005.00 };
-  const activeCycle = dashboardData?.active_cycle || { current_day: 14, total_days: 22, days_left: 8, plan_name: '22-Day Growth Cycle' };
+  const activeCycle = dashboardData?.active_cycle || { current_day: 14, total_days: 22, days_left: 8, plan_name: '22-Day Growth Plan' };
   const unclaimedAmount = dashboardData?.unclaimed_amount || 42.00;
   const unclaimedCount = dashboardData?.unclaimed_count || 1;
   const streakCount = dashboardData?.streak_count || 18;
+  const marketRate = dashboardData?.market_rate || { rate: 0.78, source: 'MARKET' };
   const notifications = notificationsList.length > 0 ? notificationsList : (dashboardData?.notifications || []);
   const unreadNotificationsCount = notifications.filter(n => n.unread).length;
 
@@ -118,7 +119,7 @@ const DashboardPage = () => {
             </div>
             
             <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-              ▲ 16.8% vs last cycle
+              ▲ 16.8% vs last plan
             </span>
           </div>
 
@@ -127,9 +128,9 @@ const DashboardPage = () => {
             {showValue ? `₹${portfolio.total_value.toLocaleString('en-IN', { minimumFractionDigits: 0 })}` : '••••••••'}
           </div>
 
-          {/* Current Cycle Growth Row */}
+          {/* Current Plan Growth Row */}
           <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-            <span className="text-gray-300 font-medium">Current Cycle Growth</span>
+            <span className="text-gray-300 font-medium">Current Plan Growth</span>
             <span className="font-extrabold text-emerald-300 text-sm">
               +{formatCurrency(portfolio.total_returns || 842)}
             </span>
@@ -188,15 +189,18 @@ const DashboardPage = () => {
           </button>
 
           <p className="text-[11px] text-amber-800 text-center font-medium mt-2">
-            Growth accrues automatically. Claim anytime to unlock it into visible cash balance.
+            Market-linked growth accrues daily (Mon-Fri). Rates vary between 0.5% and 1.0%.
           </p>
         </div>
 
-        {/* --- 22-Day Growth Cycle Circular Progress Card --- */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm space-y-4">
+        {/* --- 22-Day Active Plan Circular Progress Card --- */}
+        <div 
+          onClick={() => navigate('/plans')}
+          className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm space-y-4 cursor-pointer hover:border-emerald-200 hover:shadow-md transition-all group"
+        >
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-extrabold text-[#062E23]">22-Day Growth Cycle</h2>
-            <span className="text-xs font-bold text-[#00A859] bg-emerald-50 px-2.5 py-1 rounded-full">
+            <h2 className="text-base font-extrabold text-[#062E23] group-hover:text-[#00A859] transition-colors">22-Day Active Plan</h2>
+            <span className="text-xs font-bold text-[#00A859] bg-emerald-50 px-2.5 py-1 rounded-full group-hover:bg-emerald-100 transition-colors">
               {activeCycle.days_left} Days Remaining
             </span>
           </div>
@@ -229,14 +233,22 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Cycle Details */}
+            {/* Plan Details */}
             <div className="space-y-1.5 flex-1">
               <div className="text-sm font-extrabold text-[#062E23]">{activeCycle.plan_name}</div>
-              <div className="text-xs text-gray-500 font-medium">1% Daily Returns • Mon-Fri Active</div>
+              <div className="text-xs text-gray-500 font-medium">Market-Based Returns</div>
               
-              <div className="pt-2 flex items-center gap-1.5 text-[11px] text-gray-500 font-semibold">
-                <Clock size={14} className="text-[#00A859]" />
-                <span>Next Credit: <strong className="text-[#062E23]">Tomorrow • 10:00 AM</strong></span>
+              <div className="pt-2 flex items-center gap-1.5 text-[11px] text-gray-500 font-semibold flex-wrap">
+                <TrendingUp size={14} className="text-[#00A859]" />
+                <span>Today's Rate: <strong className="text-[#062E23]">{marketRate.rate?.toFixed(2) || '0.78'}%</strong></span>
+                <span className={`flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-full font-bold ${marketRate.source === 'ADMIN' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                  {marketRate.source === 'ADMIN' ? 'Admin Set' : (
+                    <>
+                      <TrendingUp size={10} />
+                      <span>Market</span>
+                    </>
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -270,6 +282,23 @@ const DashboardPage = () => {
               <ChevronRight size={16} />
             </div>
           </div>
+        </div>
+
+        {/* --- Quick Actions / Navigation --- */}
+        <div
+          onClick={() => navigate('/plans')}
+          className="bg-white rounded-2xl p-4 border border-emerald-100 flex items-center justify-between shadow-sm hover:border-[#00A859] hover:shadow-md transition-all cursor-pointer group mt-2"
+        >
+          <div className="flex items-center space-x-3.5">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#00A859] flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Sprout size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-[#101828]">Growth Plans</h3>
+              <p className="text-xs text-[#667085]">Explore investment plans</p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-gray-400 group-hover:text-[#00A859] group-hover:translate-x-1 transition-all" />
         </div>
 
       </div>
@@ -428,8 +457,8 @@ const DashboardPage = () => {
       <SuccessModal 
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Investment Cycle Active!"
-        message="Your 22-day growth cycle has started."
+        title="Investment Plan Active!"
+        message="Your 22-day growth plan has started."
       />
 
     </div>

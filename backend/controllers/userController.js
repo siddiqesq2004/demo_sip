@@ -1,6 +1,7 @@
 const userService = require('../services/userService');
 const models = require('../models');
 const { sendSuccess, sendError } = require('../utils/responseHandler');
+const marketRateService = require('../services/marketRateService');
 
 async function getDashboard(req, res) {
   try {
@@ -319,7 +320,7 @@ async function getWallet(req, res) {
       currently_invested: investedAmount,
       cycle_day: activeInvestment ? activeInvestment.current_day : 14,
       total_cycle_days: activeInvestment ? activeInvestment.duration_days : 22,
-      auto_reinvest: portfolio ? portfolio.auto_reinvest === 1 : true,
+      market_rate: await marketRateService.getTodayRate(),
       unclaimed_amount: portfolio ? parseFloat(portfolio.unclaimed_amount || 42.00) : 42.00,
       unclaimed_count: portfolio ? parseInt(portfolio.unclaimed_count || 1) : 1,
       unclaimed_days: portfolio ? portfolio.unclaimed_days : [{ day: 'Monday', amount: 42.00, date: '2026-07-27' }],
@@ -330,16 +331,6 @@ async function getWallet(req, res) {
   }
 }
 
-async function handleToggleAutoReinvest(req, res) {
-  try {
-    const userId = req.user.id;
-    const { status } = req.body;
-    await models.toggleAutoReinvest(userId, status);
-    return sendSuccess(res, `Auto-reinvest turned ${status ? 'ON' : 'OFF'}`, { auto_reinvest: status });
-  } catch (err) {
-    return sendError(res, 'Failed to toggle auto-reinvest', err.message, 500);
-  }
-}
 
 async function getLeaderboard(req, res) {
   try {
@@ -365,6 +356,16 @@ async function depositWallet(req, res) {
   }
 }
 
+async function getMarketRate(req, res) {
+  try {
+    const rate = await marketRateService.getTodayRate();
+    const history = await marketRateService.getRateHistory(7);
+    return sendSuccess(res, 'Market rate retrieved successfully', { today: rate, history: history });
+  } catch (err) {
+    return sendError(res, 'Failed to fetch market rate', err.message, 500);
+  }
+}
+
 module.exports = {
   getDashboard,
   getPortfolio,
@@ -380,6 +381,6 @@ module.exports = {
   claimGrowth,
   getWallet,
   depositWallet,
-  handleToggleAutoReinvest,
-  getLeaderboard
+  getLeaderboard,
+  getMarketRate
 };

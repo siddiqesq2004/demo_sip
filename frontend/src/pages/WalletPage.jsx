@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Plus, ArrowUpRight, ArrowDownLeft, RefreshCw, Sprout, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Settings, Plus, ArrowUpRight, ArrowDownLeft, Sprout, ShieldCheck, ChevronRight } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 import Loader from '../components/Loader';
@@ -14,7 +14,6 @@ const WalletPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [walletData, setWalletData] = useState(null);
-  const [autoReinvest, setAutoReinvest] = useState(true);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -31,7 +30,6 @@ const WalletPage = () => {
       const res = await api.get('/wallet');
       if (res.data) {
         setWalletData(res.data);
-        setAutoReinvest(res.data.auto_reinvest !== false);
       }
     } catch (err) {
       console.error('Failed to fetch wallet data:', err);
@@ -105,17 +103,7 @@ const WalletPage = () => {
     fetchWalletData();
   };
 
-  const handleToggleAutoReinvest = async () => {
-    const nextState = !autoReinvest;
-    setAutoReinvest(nextState);
-    try {
-      await api.post('/wallet/auto-reinvest', { auto_reinvest: nextState });
-    } catch (err) {
-      console.error('Failed to update auto reinvest setting:', err);
-    }
-  };
-
-  if (loading) return <Loader fullScreen message="Fetching Credora Wallet..." />;
+  if (loading) return <Loader fullScreen message="Fetching Wallet..." />;
 
   const availableCash = walletData?.available_cash !== undefined ? parseFloat(walletData.available_cash) : 2420.00;
   const currentlyInvested = walletData?.currently_invested !== undefined ? parseFloat(walletData.currently_invested) : 10000.00;
@@ -131,7 +119,7 @@ const WalletPage = () => {
       <div className="bg-white px-5 pt-12 pb-3.5 flex items-center justify-between border-b border-gray-100">
         <div>
           <span className="text-xs font-semibold text-gray-400 block uppercase tracking-wider">Account</span>
-          <h1 className="text-xl font-extrabold text-[#062E23] tracking-tight">Credora Wallet</h1>
+          <h1 className="text-xl font-extrabold text-[#062E23] tracking-tight">My Wallet</h1>
         </div>
 
         <button 
@@ -165,7 +153,7 @@ const WalletPage = () => {
             </div>
             
             <div>
-              <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Cycle</span>
+              <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Duration</span>
               <span className="text-sm font-bold text-emerald-300">Day {cycleDay} / 22</span>
             </div>
 
@@ -173,22 +161,13 @@ const WalletPage = () => {
               <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Available Cash</span>
               <span className="text-sm font-extrabold text-emerald-300">₹{availableCash.toLocaleString('en-IN')}</span>
             </div>
-
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Auto Reinvest</span>
-                <span className={`text-xs font-bold ${autoReinvest ? 'text-emerald-300' : 'text-gray-400'}`}>
-                  {autoReinvest ? 'ON' : 'OFF'}
-                </span>
+            
+            <div className="pt-2 border-t border-white/10">
+              <span className="text-[10px] text-gray-300 uppercase tracking-wide block font-medium">Today's Market Rate</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-extrabold text-emerald-300">{walletData?.market_rate?.rate ? `${walletData.market_rate.rate.toFixed(2)}%` : '0.78%'}</span>
+                <span className="text-[9px] text-gray-400 font-medium">Market-linked • Mon-Fri</span>
               </div>
-              
-              {/* Toggle Switch */}
-              <button 
-                onClick={handleToggleAutoReinvest}
-                className={`w-10 h-6 rounded-full p-0.5 transition-colors duration-200 ${autoReinvest ? 'bg-[#00A859]' : 'bg-gray-600'}`}
-              >
-                <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ${autoReinvest ? 'translate-x-4' : 'translate-x-0'}`} />
-              </button>
             </div>
           </div>
         </div>
@@ -224,7 +203,7 @@ const WalletPage = () => {
             <div>
               <div className="text-xs font-bold text-amber-800 uppercase tracking-wide">Growth Vault</div>
               <div className="text-sm font-extrabold text-[#062E23]">
-                {unclaimedAmount > 0 ? `Today's Growth Ready +₹${unclaimedAmount}` : 'All Growth Claimed 🎉'}
+                {unclaimedAmount > 0 ? `Market Growth Ready +₹${unclaimedAmount}` : 'All Growth Claimed 🎉'}
               </div>
             </div>
           </div>

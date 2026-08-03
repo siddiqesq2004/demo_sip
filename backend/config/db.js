@@ -50,7 +50,8 @@ const initialStore = {
   support_chats: [],
   support_messages: [],
   transactions: [],
-  bank_accounts: []
+  bank_accounts: [],
+  market_rates: []
 };
 
 let memoryStore = { ...initialStore };
@@ -382,6 +383,19 @@ function queryMemoryStore(sql, params = []) {
       memoryStore.bank_accounts.push(newAcc);
       saveJsonStore();
       return [{ insertId: newId }];
+    } else if (upperSql.includes('INSERT INTO MARKET_RATES')) {
+      const newId = (memoryStore.market_rates || []).length + 1;
+      if (!memoryStore.market_rates) memoryStore.market_rates = [];
+      const newRate = {
+        id: newId,
+        rate_date: params[0],
+        rate_percentage: parseFloat(params[1]),
+        set_by: params[2] || 'ADMIN',
+        created_at: getRealNowFormatted()
+      };
+      memoryStore.market_rates.push(newRate);
+      saveJsonStore();
+      return [{ insertId: newId }];
     }
   }
 
@@ -401,7 +415,6 @@ function queryMemoryStore(sql, params = []) {
           unclaimed_amount: 42.00,
           unclaimed_count: 1,
           streak_count: 18,
-          auto_reinvest: 1,
           unclaimed_days: []
         });
         idx = memoryStore.portfolio.length - 1;
@@ -411,13 +424,12 @@ function queryMemoryStore(sql, params = []) {
       memoryStore.portfolio[idx].invested_amount = parseFloat(params[1]);
       memoryStore.portfolio[idx].total_returns = parseFloat(params[2]);
 
-      if (params.length >= 10) {
+      if (params.length >= 9) {
         memoryStore.portfolio[idx].available_cash = parseFloat(params[3]);
         memoryStore.portfolio[idx].unclaimed_amount = parseFloat(params[4]);
         memoryStore.portfolio[idx].unclaimed_count = parseInt(params[5]);
         memoryStore.portfolio[idx].streak_count = parseInt(params[6]);
-        memoryStore.portfolio[idx].auto_reinvest = parseInt(params[7]);
-        memoryStore.portfolio[idx].unclaimed_days = params[8];
+        memoryStore.portfolio[idx].unclaimed_days = params[7];
       }
 
       saveJsonStore();
@@ -473,6 +485,17 @@ function queryMemoryStore(sql, params = []) {
       });
       saveJsonStore();
       return [{ affectedRows: 1 }];
+    } else if (upperSql.includes('UPDATE MARKET_RATES')) {
+      if (!memoryStore.market_rates) memoryStore.market_rates = [];
+      const rateDate = params[params.length - 1];
+      const idx = memoryStore.market_rates.findIndex(r => r.rate_date === rateDate);
+      if (idx !== -1) {
+        memoryStore.market_rates[idx].rate_percentage = parseFloat(params[0]);
+        memoryStore.market_rates[idx].set_by = params[1] || 'ADMIN';
+        saveJsonStore();
+        return [{ affectedRows: 1 }];
+      }
+      return [{ affectedRows: 0 }];
     }
     return [{ affectedRows: 0 }];
   }
@@ -604,6 +627,17 @@ function queryMemoryStore(sql, params = []) {
       const rows = memoryStore.transactions
         .filter(t => Number(t.user_id) === Number(userId))
         .sort((a, b) => b.id - a.id);
+      return [rows];
+    }
+    if (upperSql.includes('FROM MARKET_RATES WHERE RATE_DATE')) {
+      if (!memoryStore.market_rates) memoryStore.market_rates = [];
+      const rateDate = params[0];
+      const rows = memoryStore.market_rates.filter(r => r.rate_date === rateDate);
+      return [rows];
+    }
+    if (upperSql.includes('FROM MARKET_RATES')) {
+      if (!memoryStore.market_rates) memoryStore.market_rates = [];
+      const rows = [...memoryStore.market_rates].sort((a, b) => b.id - a.id);
       return [rows];
     }
   }

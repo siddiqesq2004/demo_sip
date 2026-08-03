@@ -24,7 +24,7 @@ const PortfolioPage = () => {
     active_plans: [
       {
         id: 1,
-        plan_name: '22 Day Growth Cycle',
+        plan_name: '22 Day Growth Plan',
         current_day: 8,
         duration_days: 22,
         amount: 106510.00,

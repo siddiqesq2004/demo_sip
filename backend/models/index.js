@@ -78,7 +78,6 @@ async function getPortfolioByUserId(userId) {
     unclaimed_amount: p.unclaimed_amount !== undefined ? p.unclaimed_amount : 42.00,
     unclaimed_count: p.unclaimed_count !== undefined ? p.unclaimed_count : 1,
     streak_count: p.streak_count !== undefined ? p.streak_count : 18,
-    auto_reinvest: p.auto_reinvest !== undefined ? p.auto_reinvest : 1,
     unclaimed_days: p.unclaimed_days ? (typeof p.unclaimed_days === 'string' ? JSON.parse(p.unclaimed_days) : p.unclaimed_days) : [
       { day: 'Monday', amount: 42.00, date: '2026-07-27' }
     ]
@@ -92,20 +91,19 @@ async function updatePortfolio(userId, totalValue, investedAmount, totalReturns,
     const unclaimedAmount = extra.unclaimed_amount !== undefined ? extra.unclaimed_amount : existing.unclaimed_amount;
     const unclaimedCount = extra.unclaimed_count !== undefined ? extra.unclaimed_count : existing.unclaimed_count;
     const streakCount = extra.streak_count !== undefined ? extra.streak_count : existing.streak_count;
-    const autoReinvest = extra.auto_reinvest !== undefined ? extra.auto_reinvest : existing.auto_reinvest;
     const unclaimedDays = extra.unclaimed_days ? JSON.stringify(extra.unclaimed_days) : JSON.stringify(existing.unclaimed_days || []);
 
     await query(
       `UPDATE portfolio 
-       SET total_value = ?, invested_amount = ?, total_returns = ?, available_cash = ?, unclaimed_amount = ?, unclaimed_count = ?, streak_count = ?, auto_reinvest = ?, unclaimed_days = ?
+       SET total_value = ?, invested_amount = ?, total_returns = ?, available_cash = ?, unclaimed_amount = ?, unclaimed_count = ?, streak_count = ?, unclaimed_days = ?
        WHERE user_id = ?`,
-      [totalValue, investedAmount, totalReturns, availableCash, unclaimedAmount, unclaimedCount, streakCount, autoReinvest, unclaimedDays, userId]
+      [totalValue, investedAmount, totalReturns, availableCash, unclaimedAmount, unclaimedCount, streakCount, unclaimedDays, userId]
     );
   } else {
     await query(
-      `INSERT INTO portfolio (user_id, total_value, invested_amount, total_returns, available_cash, unclaimed_amount, unclaimed_count, streak_count, auto_reinvest, unclaimed_days)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, totalValue, investedAmount, totalReturns, 2420.00, 42.00, 1, 18, 1, JSON.stringify([{ day: 'Monday', amount: 42.00, date: '2026-07-27' }])]
+      `INSERT INTO portfolio (user_id, total_value, invested_amount, total_returns, available_cash, unclaimed_amount, unclaimed_count, streak_count, unclaimed_days)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, totalValue, investedAmount, totalReturns, 2420.00, 42.00, 1, 18, JSON.stringify([{ day: 'Monday', amount: 42.00, date: '2026-07-27' }])]
     );
   }
 }
@@ -142,14 +140,6 @@ async function claimUserGrowth(userId) {
     new_available_cash: newAvailable,
     new_streak: newStreak
   };
-}
-
-async function toggleAutoReinvest(userId, status) {
-  const portfolio = await getPortfolioByUserId(userId);
-  if (!portfolio) return false;
-
-  await query('UPDATE portfolio SET auto_reinvest = ? WHERE user_id = ?', [status ? 1 : 0, userId]);
-  return true;
 }
 
 async function getLeaderboardData() {
@@ -433,6 +423,26 @@ async function setUserPrimaryBankAccount(userId, bankAccountId) {
   return true;
 }
 
+// --- Market Rate Queries ---
+async function getMarketRate(dateStr) {
+  const [rows] = await query('SELECT * FROM market_rates WHERE rate_date = ?', [dateStr]);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+async function setMarketRate(dateStr, ratePercentage, setBy = 'ADMIN') {
+  const existing = await getMarketRate(dateStr);
+  if (existing) {
+    await query('UPDATE market_rates SET rate_percentage = ?, set_by = ? WHERE rate_date = ?', [ratePercentage, setBy, dateStr]);
+  } else {
+    await query('INSERT INTO market_rates (rate_date, rate_percentage, set_by) VALUES (?, ?, ?)', [dateStr, ratePercentage, setBy]);
+  }
+}
+
+async function getRecentMarketRates(limit = 7) {
+  const [rows] = await query('SELECT * FROM market_rates ORDER BY id DESC');
+  return rows.slice(0, limit);
+}
+
 module.exports = {
   findUserByEmail,
   findUserById,
@@ -447,7 +457,6 @@ module.exports = {
   getPortfolioByUserId,
   updatePortfolio,
   claimUserGrowth,
-  toggleAutoReinvest,
   getLeaderboardData,
   getAllPlans,
   getPlanById,
@@ -473,5 +482,8 @@ module.exports = {
   getAllInvestmentsAdmin,
   getUserBankAccounts,
   createUserBankAccount,
-  setUserPrimaryBankAccount
+  setUserPrimaryBankAccount,
+  getMarketRate,
+  setMarketRate,
+  getRecentMarketRates
 };
