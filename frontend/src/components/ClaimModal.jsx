@@ -91,11 +91,12 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onCl
 
   return createPortal(
     <div 
-      className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 transition-all touch-none"
-      onTouchMove={(e) => e.preventDefault()}
-      onWheel={(e) => e.preventDefault()}
+      className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center p-4 pt-12 pb-6 bg-black/60 backdrop-blur-sm transition-all"
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
     >
-      <div className="bg-[#FFFDF7] w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border border-amber-100/50 relative overflow-hidden animate-in slide-in-from-bottom duration-300">
+      <div className="bg-[#FFFDF7] w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-amber-100/50 relative overflow-y-auto max-h-full scrollbar-hide animate-in slide-in-from-bottom duration-300">
         
         {/* Floating Confetti / Particle Accents */}
         <div className="absolute top-2 left-6 text-xl animate-bounce">🎉</div>
