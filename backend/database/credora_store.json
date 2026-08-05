@@ -1095,13 +1095,13 @@
     {
       "id": 1,
       "user_id": 1,
-      "total_value": 137603,
+      "total_value": 137645,
       "invested_amount": 116510,
-      "total_returns": 17593,
-      "available_cash": 21093,
+      "total_returns": 17635,
+      "available_cash": 21135,
       "unclaimed_amount": 0,
       "unclaimed_count": 0,
-      "streak_count": 34,
+      "streak_count": 35,
       "auto_reinvest": 1,
       "unclaimed_days": "[]"
     },
@@ -7190,6 +7190,15 @@
       "description": "🌱 Growth Claimed (+₹42)",
       "status": "COMPLETED",
       "created_at": "2026-08-05 21:57:51"
+    },
+    {
+      "id": 143,
+      "user_id": 1,
+      "type": "CREDIT",
+      "amount": 42,
+      "description": "🌱 Growth Claimed (+₹42)",
+      "status": "COMPLETED",
+      "created_at": "2026-08-05 22:10:35"
     }
   ],
   "bank_accounts": [
