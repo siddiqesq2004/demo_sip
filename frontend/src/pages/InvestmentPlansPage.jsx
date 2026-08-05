@@ -97,18 +97,14 @@ const InvestmentPlansPage = () => {
           </div>
 
           {/* Stats row */}
-          <div className="mx-5 mb-4 bg-black/30 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10 grid grid-cols-3 gap-2 text-xs text-center">
+          <div className="mx-5 mb-4 bg-black/30 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10 grid grid-cols-2 gap-2 text-xs text-center">
             <div>
               <span className="text-gray-400 block text-[10px] font-medium">Returns Earned</span>
               <span className="text-emerald-300 font-black text-sm">+{returnsEarned}%</span>
             </div>
-            <div className="border-l border-r border-white/10">
+            <div className="border-l border-white/10">
               <span className="text-gray-400 block text-[10px] font-medium">Growth Stage</span>
               <span className="text-amber-300 font-extrabold text-sm">{Math.ceil(progress * 6)} / 6</span>
-            </div>
-            <div>
-              <span className="text-gray-400 block text-[10px] font-medium">Daily Yield</span>
-              <span className="text-white font-black text-sm">+1.00%</span>
             </div>
           </div>
 

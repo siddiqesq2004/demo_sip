@@ -9,7 +9,7 @@ const MainLayout = () => {
 
   return (
     <PhoneFrame>
-      <div className="w-full h-full bg-white flex flex-col relative overflow-hidden">
+      <div id="phone-root" className="w-full h-full bg-white flex flex-col relative overflow-hidden">
         {/* Network Status Offline/Online Listener */}
         <NetworkStatusListener />
         

@@ -356,7 +356,6 @@ const DashboardPage = () => {
             };
           });
           fetchDashboardData();
-          setShowNotificationsModal(true);
         }}
       />
 

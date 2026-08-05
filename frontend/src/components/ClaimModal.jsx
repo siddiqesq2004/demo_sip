@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Flame, Sparkles, ChevronRight, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
@@ -6,6 +7,33 @@ import { formatCurrency } from '../utils/formatters';
 const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onClaimSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [claimed, setClaimed] = useState(false);
+
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      if (mainEl) {
+        mainEl.style.overflow = 'hidden';
+        mainEl.style.touchAction = 'none';
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      if (mainEl) {
+        mainEl.style.overflow = '';
+        mainEl.style.touchAction = '';
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      if (mainEl) {
+        mainEl.style.overflow = '';
+        mainEl.style.touchAction = '';
+      }
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -59,9 +87,15 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onCl
 
   const plantInfo = getPlantStage(currentStreak);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 transition-all">
-      <div className="bg-[#FFFDF7] w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-amber-100/50 relative overflow-hidden animate-in slide-in-from-bottom duration-300">
+  const modalTarget = document.getElementById('phone-root') || document.body;
+
+  return createPortal(
+    <div 
+      className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 transition-all touch-none"
+      onTouchMove={(e) => e.preventDefault()}
+      onWheel={(e) => e.preventDefault()}
+    >
+      <div className="bg-[#FFFDF7] w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border border-amber-100/50 relative overflow-hidden animate-in slide-in-from-bottom duration-300">
         
         {/* Floating Confetti / Particle Accents */}
         <div className="absolute top-2 left-6 text-xl animate-bounce">🎉</div>
@@ -156,35 +190,35 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onCl
           /* --- Single Day Claim View (Screen 2) --- */
           <div>
             {/* 3D Wallet / Sprout Header Illustration */}
-            <div className="flex flex-col items-center justify-center my-4">
-              <div className="w-24 h-24 bg-gradient-to-tr from-emerald-800 to-emerald-950 rounded-3xl p-3 flex items-center justify-center shadow-xl shadow-emerald-950/20 relative mb-4 border-2 border-amber-300">
-                <div className="text-5xl animate-bounce">👛</div>
-                <div className="absolute -bottom-2 bg-amber-400 text-[#062E23] text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 shadow-sm">
+            <div className="flex flex-col items-center justify-center my-3">
+              <div className="w-20 h-20 bg-gradient-to-tr from-emerald-800 to-emerald-950 rounded-[1.25rem] p-3 flex items-center justify-center shadow-xl shadow-emerald-950/20 relative mb-3 border border-amber-300">
+                <div className="text-4xl animate-bounce">👛</div>
+                <div className="absolute -bottom-2 bg-amber-400 text-[#062E23] text-[9px] font-black px-2 py-0.5 rounded-full border border-amber-200 shadow-sm">
                   READY
                 </div>
               </div>
 
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">
                 Today's Growth Ready
               </span>
-              <h2 className="text-4xl font-black text-[#00A859]">
+              <h2 className="text-3xl font-black text-[#00A859]">
                 +₹{amount}
               </h2>
-              <p className="text-xs text-gray-500 text-center max-w-xs mt-2 font-medium">
+              <p className="text-[11px] text-gray-500 text-center max-w-[260px] mt-1.5 font-medium leading-relaxed">
                 Your growth has already accrued. Tap below to unlock it into your visible balance.
               </p>
             </div>
 
             {/* Balance Conversion Card */}
-            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-5 flex items-center justify-between">
+            <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm mb-4 flex items-center justify-between">
               <div className="text-center flex-1 border-r border-gray-100 pr-2">
-                <span className="text-[11px] font-semibold text-gray-400 uppercase">Current Balance</span>
-                <div className="text-base font-extrabold text-gray-800">₹{currentCash.toLocaleString('en-IN')}</div>
+                <span className="text-[10px] font-semibold text-gray-400 uppercase">Current Balance</span>
+                <div className="text-sm font-extrabold text-gray-800">₹{currentCash.toLocaleString('en-IN')}</div>
               </div>
-              <div className="px-3 text-emerald-600 font-black">➔</div>
+              <div className="px-3 text-emerald-600 font-black text-sm">➔</div>
               <div className="text-center flex-1 pl-2">
-                <span className="text-[11px] font-semibold text-[#00A859] uppercase">New Balance</span>
-                <div className="text-base font-extrabold text-[#00A859]">₹{newCash.toLocaleString('en-IN')}</div>
+                <span className="text-[10px] font-semibold text-[#00A859] uppercase">New Balance</span>
+                <div className="text-sm font-extrabold text-[#00A859]">₹{newCash.toLocaleString('en-IN')}</div>
               </div>
             </div>
 
@@ -192,13 +226,13 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onCl
             <button
               onClick={handleClaim}
               disabled={loading}
-              className="w-full bg-[#00A859] hover:bg-[#008f4c] text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-600/25 active:scale-95 transition-all text-lg mb-4 flex items-center justify-center gap-2"
+              className="w-full bg-[#00A859] hover:bg-[#008f4c] text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-emerald-600/25 active:scale-95 transition-all text-base mb-4 flex items-center justify-center gap-2"
             >
               {loading ? 'Unlocking...' : `Unlock ₹${amount}`}
             </button>
 
             {/* Streak Counter Footer Badge */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-amber-300 transition-all">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-2.5 flex items-center justify-between cursor-pointer hover:border-amber-300 transition-all">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center">
                   <Flame size={20} className="text-orange-500 fill-orange-500" />
@@ -215,7 +249,8 @@ const ClaimModal = ({ isOpen, onClose, unclaimedData, currentAvailableCash, onCl
         )}
 
       </div>
-    </div>
+    </div>,
+    modalTarget
   );
 };
 
