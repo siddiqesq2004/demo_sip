@@ -1,14 +1,48 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle2, TrendingUp, ArrowRight } from 'lucide-react';
 import Button from './Button';
 import { formatCurrency } from '../utils/formatters';
 
 export default function SuccessModal({ isOpen, onClose, investmentData }) {
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      if (mainEl) {
+        mainEl.style.overflow = 'hidden';
+        mainEl.style.touchAction = 'none';
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      if (mainEl) {
+        mainEl.style.overflow = '';
+        mainEl.style.touchAction = '';
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      if (mainEl) {
+        mainEl.style.overflow = '';
+        mainEl.style.touchAction = '';
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen || !investmentData) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl border border-gray-100 text-center p-6 space-y-4">
+  const modalTarget = document.getElementById('phone-root') || document.body;
+
+  return createPortal(
+    <div 
+      className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in touch-none"
+      onTouchMove={(e) => e.preventDefault()}
+      onWheel={(e) => e.preventDefault()}
+    >
+      <div className="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl border border-gray-100 text-center p-6 space-y-4 max-h-[90vh] flex flex-col">
         {/* Animated Check Icon */}
         <div className="w-16 h-16 rounded-full bg-emerald-100 text-credora-green flex items-center justify-center mx-auto shadow-inner">
           <CheckCircle2 className="w-10 h-10 animate-bounce" />
@@ -43,6 +77,7 @@ export default function SuccessModal({ isOpen, onClose, investmentData }) {
           View in Portfolio <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
-    </div>
+    </div>,
+    modalTarget
   );
 }
