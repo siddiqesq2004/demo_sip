@@ -71,7 +71,7 @@ const LeaderboardPage = () => {
             }`}
           >
             <Flame size={16} className={activeTab === 'streaks' ? 'text-[#062E23] fill-[#062E23]' : ''} />
-            <span>Daily Streaks 🔥</span>
+            <span>Wealth Streaks 🔥</span>
           </button>
 
           <button
@@ -94,7 +94,7 @@ const LeaderboardPage = () => {
         <div className="bg-white rounded-3xl p-5 shadow-lg border border-amber-100 mb-5 relative">
           <div className="text-center mb-4">
             <span className="text-[11px] font-extrabold text-amber-800 bg-amber-100 px-3 py-1 rounded-full uppercase tracking-wider">
-              {activeTab === 'streaks' ? '🔥 Top Daily Claim Streaks' : '👥 Top Growth Ambassadors'}
+              {activeTab === 'streaks' ? '🔥 Top Wealth Streaks' : '👥 Top Growth Ambassadors'}
             </span>
           </div>
 
