@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency } from '../utils/formatters';
@@ -23,6 +24,37 @@ const ProfilePage = () => {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+
+  useEffect(() => {
+    const isModalOpen = !!activeModal || showAvatarModal;
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'hidden';
+        mainEl.style.touchAction = 'none';
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'auto';
+        mainEl.style.touchAction = 'auto';
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'auto';
+        mainEl.style.touchAction = 'auto';
+      }
+    }
+  }, [activeModal, showAvatarModal]);
+
 
   // 1. Dynamic User Name & Photo State
   const [userName, setUserName] = useState('');
@@ -371,6 +403,8 @@ const ProfilePage = () => {
       </div>
 
       {/* --- MODALS --- */}
+      {document.getElementById('phone-root') && createPortal(
+        <>
       {/* Toast Alert Banner */}
       {toastMessage && (
         <div className="fixed top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-2xl z-50 animate-bounce flex items-center space-x-1.5 border border-white/20">
@@ -380,7 +414,7 @@ const ProfilePage = () => {
 
       {/* 1. Profile Details Modal */}
       {activeModal === 'profile' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-base font-bold text-[#101828]">Edit Investor Profile</h3>
@@ -430,7 +464,7 @@ const ProfilePage = () => {
 
       {/* 2. Dynamic Bank Details Modal */}
       {activeModal === 'bank' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-base font-bold text-[#101828]">Linked Bank Accounts</h3>
@@ -504,7 +538,7 @@ const ProfilePage = () => {
 
       {/* 3. KYC Verification Modal */}
       {activeModal === 'kyc' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
               <h3 className="text-base font-bold text-[#101828]">KYC Compliance Status</h3>
@@ -545,7 +579,7 @@ const ProfilePage = () => {
 
       {/* 4. Refer & Earn Modal */}
       {activeModal === 'refer' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
               <h3 className="text-base font-bold text-[#101828]">Refer & Earn Rewards</h3>
@@ -581,7 +615,7 @@ const ProfilePage = () => {
 
       {/* 5. Help & Support Modal */}
       {activeModal === 'support' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-base font-bold text-[#101828]">Help & Support Center</h3>
@@ -627,7 +661,7 @@ const ProfilePage = () => {
 
       {/* 5b. Interactive Live Support Chat Sheet */}
       {activeModal === 'chat' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full h-[70vh] flex flex-col rounded-3xl p-4 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center space-x-2">
@@ -677,7 +711,7 @@ const ProfilePage = () => {
 
       {/* 6. Settings Modal */}
       {activeModal === 'settings' && (
-        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
+        <div onClick={() => setActiveModal(null)} className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pt-12 pb-6 px-3 animate-fade-in overflow-hidden">
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-h-[75vh] overflow-y-auto scrollbar-hide rounded-3xl p-5 shadow-2xl animate-slide-up">
             <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-base font-bold text-[#101828]">App Settings</h3>
@@ -736,7 +770,7 @@ const ProfilePage = () => {
 
       {/* 8. Profile Photo Upload & Preset Modal */}
       {showAvatarModal && (
-        <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-[100] flex items-center justify-center pt-12 pb-6 px-4 overflow-hidden">
           <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in duration-200 text-gray-900">
             <button
               onClick={() => setShowAvatarModal(false)}
@@ -801,6 +835,9 @@ const ProfilePage = () => {
             )}
           </div>
         </div>
+      )}
+        </>,
+        document.getElementById('phone-root')
       )}
     </div>
   );
