@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
 import api from '../services/api';
@@ -15,6 +16,36 @@ const InvestPage = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   
+  useEffect(() => {
+    const isModalOpen = showPaymentModal || showSuccessModal;
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'hidden';
+        mainEl.style.touchAction = 'none';
+      }
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'auto';
+        mainEl.style.touchAction = 'auto';
+      }
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.style.overflow = 'auto';
+        mainEl.style.touchAction = 'auto';
+      }
+    }
+  }, [showPaymentModal, showSuccessModal]);
+
   const presets = [5000, 10000, 25000, 50000];
 
   const demoPlanFallback = {
@@ -67,7 +98,7 @@ const InvestPage = () => {
   if (!plan) setPlan(demoPlanFallback);
 
   const activePlan = plan || demoPlanFallback;
-  const returnAmount = (parseFloat(amount || 0) * activePlan.return_percentage) / 100 * activePlan.duration_days;
+  const returnAmount = (parseFloat(amount || 0) * activePlan.return_percentage) / 100;
   const totalAmount = parseFloat(amount || 0) + returnAmount;
 
   return (
@@ -131,11 +162,11 @@ const InvestPage = () => {
           <div className="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-4">
             <p className="text-xs text-[#667085] mb-1 font-medium">Expected Return</p>
             <p className="text-lg font-extrabold text-[#00A859]">{formatCurrency(returnAmount)}</p>
-            <span className="text-[10px] text-[#00A859] font-bold">+{activePlan.return_percentage}% daily</span>
+            <span className="text-[10px] text-[#00A859] font-bold">+{activePlan.return_percentage}% expected</span>
           </div>
 
           <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-            <p className="text-xs text-[#667085] mb-1 font-medium">Total (22 Days)</p>
+            <p className="text-xs text-[#667085] mb-1 font-medium">Total ({activePlan.duration_days} Days)</p>
             <p className="text-lg font-extrabold text-[#101828]">{formatCurrency(totalAmount)}</p>
             <span className="text-[10px] text-gray-500 font-medium">Principal + Profit</span>
           </div>
@@ -187,9 +218,9 @@ const InvestPage = () => {
       </div>
 
       {/* Payment Confirmation Modal */}
-      {showPaymentModal && (
-        <div className="absolute inset-0 bg-black/60 z-50 flex items-end justify-center pb-[68px] p-3 animate-fade-in">
-          <div className="bg-white w-full rounded-3xl p-6 shadow-2xl animate-slide-up">
+      {showPaymentModal && document.getElementById('phone-root') && createPortal(
+        <div className="absolute inset-0 bg-black/60 z-[100] flex items-end justify-center pb-6 pt-12 animate-fade-in overflow-hidden">
+          <div className="bg-white w-full rounded-3xl p-6 shadow-2xl animate-slide-up mx-3">
             <h3 className="text-lg font-bold text-[#101828] mb-1">Confirm Payment</h3>
             <p className="text-[#667085] text-xs mb-5">
               You are investing <strong className="text-[#101828]">{formatCurrency(parseFloat(amount || 10000))}</strong> in {activePlan.name} via {paymentMethod}.
@@ -210,12 +241,13 @@ const InvestPage = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('phone-root')
       )}
 
       {/* --- INVESTMENT SUCCESS DEMO MODAL --- */}
-      {showSuccessModal && (
-        <div className="absolute inset-0 bg-black/70 z-50 flex items-center justify-center p-6 animate-fade-in">
+      {showSuccessModal && document.getElementById('phone-root') && createPortal(
+        <div className="absolute inset-0 bg-black/70 z-[100] flex items-center justify-center p-6 animate-fade-in pt-12 pb-6 overflow-hidden">
           <div className="bg-white w-full max-w-xs rounded-3xl p-6 text-center shadow-2xl animate-slide-up flex flex-col items-center">
             <div className="w-16 h-16 bg-[#00A859]/10 rounded-full flex items-center justify-center mb-4 text-[#00A859]">
               <Check size={36} className="text-[#00A859]" />
@@ -228,8 +260,8 @@ const InvestPage = () => {
             
             <div className="w-full bg-emerald-50 rounded-xl p-3.5 mb-5 border border-emerald-100 text-xs text-left space-y-1.5">
               <div className="flex justify-between text-[#667085]">
-                <span>Daily Returns:</span>
-                <span className="font-bold text-[#00A859]">+{activePlan.return_percentage}% Daily</span>
+                <span>Returns:</span>
+                <span className="font-bold text-[#00A859]">+{activePlan.return_percentage}% Expected</span>
               </div>
               <div className="flex justify-between text-[#667085]">
                 <span>Plan Duration:</span>
@@ -247,7 +279,8 @@ const InvestPage = () => {
               Go to Portfolio
             </button>
           </div>
-        </div>
+        </div>,
+        document.getElementById('phone-root')
       )}
     </div>
   );

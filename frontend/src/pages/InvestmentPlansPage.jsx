@@ -70,7 +70,7 @@ const InvestmentPlansPage = () => {
         </div>
         <span className="text-xs font-extrabold text-[#00A859] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
           <Sprout size={14} />
-          <span>1% Daily</span>
+          <span>Market Linked</span>
         </span>
       </div>
 

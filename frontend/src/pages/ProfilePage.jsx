@@ -302,7 +302,7 @@ const ProfilePage = () => {
               <CheckCircle size={12} className="mr-1" /> Verified Investor
             </span>
           </div>
-          <span className="bg-white/10 text-white px-2.5 py-1 rounded-full text-[10px]">SEBI Compliant</span>
+          
         </div>
       </div>
 

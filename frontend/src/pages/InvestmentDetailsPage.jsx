@@ -41,7 +41,7 @@ const InvestmentDetailsPage = () => {
           </h1>
         </div>
         
-        <p className="text-lg text-white/90 font-medium mb-2">{plan.return_percentage / plan.duration_days}% Daily Returns For {plan.duration_days} Working Days</p>
+        <p className="text-lg text-white/90 font-medium mb-2">Est. 0.5-1% Daily Returns For {plan.duration_days} Working Days</p>
         <span className="inline-block bg-white/10 px-3 py-1 rounded-full text-xs text-white/80 border border-white/20">
           Sat & Sun Holiday
         </span>

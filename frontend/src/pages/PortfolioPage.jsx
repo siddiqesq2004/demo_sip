@@ -155,7 +155,7 @@ const PortfolioPage = () => {
                     <p className="text-xs text-[#667085]">Day {plan.current_day} of {plan.duration_days}</p>
                   </div>
                   <span className="bg-[#00A859]/10 text-[#00A859] text-xs font-bold px-2.5 py-1 rounded-lg">
-                    1% Daily
+                    Market Linked
                   </span>
                 </div>
 
