@@ -125,7 +125,6 @@ const LeaderboardPage = () => {
             {topThree[0] && (
               <div className="flex-1 flex flex-col items-center -mt-4">
                 <div className="relative mb-2">
-                  <Crown className="text-amber-400 fill-amber-400 w-6 h-6 absolute -top-5 left-1/2 -translate-x-1/2 animate-bounce" />
                   <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-100 border-2 border-amber-400 flex items-center justify-center font-black text-[#062E23] text-xl shadow-lg ring-4 ring-amber-400/20">
                     {topThree[0].avatar}
                   </div>
