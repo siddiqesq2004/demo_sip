@@ -41,7 +41,7 @@ const InvestmentDetailsPage = () => {
           </h1>
         </div>
         
-        <p className="text-lg text-white/90 font-medium mb-2">Est. 0.5-1% Daily Returns For {plan.duration_days} Working Days</p>
+        <p className="text-lg text-white/90 font-medium mb-2">Est. 0.5-1% Daily Returns (Based on market trend) For {plan.duration_days} Working Days</p>
         <span className="inline-block bg-white/10 px-3 py-1 rounded-full text-xs text-white/80 border border-white/20">
           Sat & Sun Holiday
         </span>
@@ -84,7 +84,7 @@ const InvestmentDetailsPage = () => {
                 <Calendar size={16} />
               </div>
               <div>
-                <p className="font-semibold text-[#101828] text-sm">Earn {plan.return_percentage / plan.duration_days}% every working day</p>
+                <p className="font-semibold text-[#101828] text-sm">Earn est. 0.5-1% every working day</p>
                 <p className="text-xs text-[#667085] mt-0.5">Returns credited daily</p>
               </div>
             </div>

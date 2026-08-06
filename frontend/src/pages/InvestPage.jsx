@@ -54,7 +54,7 @@ const InvestPage = () => {
     return_percentage: 1.0,
     duration_days: 22,
     min_amount: 5000,
-    description: 'Earn 1% daily returns every working day (Mon-Fri) for 22 working days.'
+    description: 'Earn est. 0.5-1% daily returns (based on market trend) every working day (Mon-Fri) for 22 working days.'
   };
 
   useEffect(() => {

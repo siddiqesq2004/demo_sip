@@ -13,7 +13,7 @@ const InvestmentPlansPage = () => {
   const navigate = useNavigate();
 
   const demoPlansFallback = [
-    { id: 1, name: '22 Day Growth Plan', return_percentage: 1.0, duration_days: 22, min_amount: 5000, description: 'Earn market-linked daily returns every working day (Mon-Fri) for 22 working days.' },
+    { id: 1, name: '22 Day Growth Plan', return_percentage: 1.0, duration_days: 22, min_amount: 5000, description: 'Earn est. 0.5-1% daily returns (based on market trend) every working day (Mon-Fri) for 22 working days.' },
     { id: 2, name: '45 Day Accelerator Plan', return_percentage: 1.2, duration_days: 45, min_amount: 10000, description: 'Accelerated market-linked daily growth plan with enhanced return potential.' },
     { id: 3, name: '90 Day Wealth Empire', return_percentage: 1.5, duration_days: 90, min_amount: 25000, description: 'Premium market-linked returns for long-term investors. Higher potential daily yields.' }
   ];
